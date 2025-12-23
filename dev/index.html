@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCADA Widget - ThingsBoard Style Simulator</title>
+  
+  <!-- Material Design Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <!-- Roboto Font (TB uses this) -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <!-- SVG.js (FUXA dependency) -->
+  <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.2.4/dist/svg.min.js"></script>
+  
+  <style>
+    /* ThingsBoard-style CSS Variables */
+    :root {
+      /* TB Dark Theme Colors */
+      --tb-primary: #305680;
+      --tb-primary-light: #4a7cb0;
+      --tb-accent: #d97f0d;
+      --tb-background: #2a323d;
+      --tb-surface: #323c49;
+      --tb-surface-light: #3b4654;
+      --tb-text-primary: #ffffff;
+      --tb-text-secondary: rgba(255, 255, 255, 0.7);
+      --tb-text-disabled: rgba(255, 255, 255, 0.5);
+      --tb-divider: rgba(255, 255, 255, 0.12);
+      --tb-success: #4caf50;
+      --tb-warning: #ff9800;
+      --tb-error: #f44336;
+      --tb-info: #2196f3;
+      
+      /* TB Light Theme Colors (for reference) */
+      --tb-light-primary: #305680;
+      --tb-light-background: #fafafa;
+      --tb-light-surface: #ffffff;
+      --tb-light-text-primary: rgba(0, 0, 0, 0.87);
+      
+      /* Shadows */
+      --tb-shadow-1: 0 2px 1px -1px rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 1px 3px 0 rgba(0,0,0,.12);
+      --tb-shadow-2: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+      --tb-shadow-4: 0 2px 4px -1px rgba(0,0,0,.2), 0 4px 5px 0 rgba(0,0,0,.14), 0 1px 10px 0 rgba(0,0,0,.12);
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body { 
+      font-family: 'Roboto', sans-serif;
+      background: var(--tb-background); 
+      color: var(--tb-text-primary);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    
+    /* Layout */
+    .app-container { display: flex; height: 100vh; }
+    
+    /* Sidebar - TB Style */
+    .sidebar { 
+      width: 340px; 
+      background: var(--tb-surface); 
+      display: flex; 
+      flex-direction: column; 
+      border-right: 1px solid var(--tb-divider);
+      box-shadow: var(--tb-shadow-2);
+    }
+    
+    /* Toolbar Header */
+    .sidebar-header {
+      height: 64px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      background: var(--tb-primary);
+      color: white;
+    }
+    .sidebar-header h2 {
+      font-size: 18px;
+      font-weight: 500;
+    }
+    
+    /* Tab Navigation - Material Style */
+    .tabs {
+      display: flex;
+      background: var(--tb-surface-light);
+      border-bottom: 1px solid var(--tb-divider);
+    }
+    .tab {
+      flex: 1;
+      padding: 14px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--tb-text-secondary);
+      cursor: pointer;
+      text-align: center;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s ease;
+    }
+    .tab:hover { 
+      color: var(--tb-text-primary);
+      background: rgba(255,255,255,0.05);
+    }
+    .tab.active { 
+      color: var(--tb-accent); 
+      border-bottom-color: var(--tb-accent);
+    }
+    .tab-content { 
+      display: none; 
+      flex: 1; 
+      overflow-y: auto;
+      padding: 16px;
+    }
+    .tab-content.active { display: block; }
+    
+    /* Panel Cards - Material Style */
+    .card {
+      background: var(--tb-surface-light);
+      border-radius: 4px;
+      margin-bottom: 16px;
+      box-shadow: var(--tb-shadow-1);
+    }
+    .card-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--tb-divider);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-header .material-icons {
+      font-size: 20px;
+      color: var(--tb-accent);
+    }
+    .card-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--tb-text-primary);
+    }
+    .card-content {
+      padding: 16px;
+    }
+    
+    /* Data Items */
+    .data-item { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center;
+      padding: 10px 12px; 
+      background: var(--tb-surface);
+      border-radius: 4px;
+      margin-bottom: 8px;
+      transition: background 0.2s;
+    }
+    .data-item:hover {
+      background: rgba(255,255,255,0.05);
+    }
+    .data-key { 
+      color: var(--tb-text-secondary); 
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .data-type { 
+      font-size: 10px; 
+      padding: 2px 6px;
+      background: var(--tb-primary);
+      color: white;
+      border-radius: 10px;
+      text-transform: uppercase;
+    }
+    .data-value { 
+      color: var(--tb-accent); 
+      font-weight: 500; 
+      font-family: 'Roboto Mono', monospace;
+      font-size: 14px;
+    }
+    
+    /* Form Controls - Material Style */
+    .form-group { margin-bottom: 16px; }
+    .form-label { 
+      display: block;
+      font-size: 12px; 
+      color: var(--tb-text-secondary); 
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+    .form-input { 
+      width: 100%; 
+      padding: 10px 12px; 
+      background: var(--tb-surface); 
+      border: 1px solid var(--tb-divider); 
+      border-radius: 4px; 
+      color: var(--tb-text-primary);
+      font-size: 14px;
+      font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-input:focus { 
+      border-color: var(--tb-primary-light); 
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(48, 86, 128, 0.2);
+    }
+    .form-textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 10px 12px;
+      background: var(--tb-surface);
+      border: 1px solid var(--tb-divider);
+      border-radius: 4px;
+      color: var(--tb-text-primary);
+      font-size: 12px;
+      font-family: 'Roboto Mono', monospace;
+      resize: vertical;
+      line-height: 1.6;
+    }
+    .form-textarea:focus {
+      border-color: var(--tb-primary-light);
+      outline: none;
+    }
+    
+    /* Buttons - Material Style */
+    .btn { 
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 16px; 
+      background: var(--tb-primary); 
+      border: none; 
+      border-radius: 4px; 
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: inherit;
+      color: white;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: all 0.2s;
+      box-shadow: var(--tb-shadow-1);
+    }
+    .btn:hover { 
+      background: var(--tb-primary-light);
+      box-shadow: var(--tb-shadow-2);
+    }
+    .btn:active {
+      box-shadow: var(--tb-shadow-1);
+    }
+    .btn .material-icons { font-size: 18px; }
+    
+    .btn-flat {
+      background: transparent;
+      box-shadow: none;
+      color: var(--tb-primary-light);
+    }
+    .btn-flat:hover {
+      background: rgba(48, 86, 128, 0.1);
+      box-shadow: none;
+    }
+    
+    .btn-accent { background: var(--tb-accent); }
+    .btn-accent:hover { background: #e8910f; }
+    
+    .btn-success { background: var(--tb-success); }
+    .btn-success:hover { background: #43a047; }
+    
+    .btn-error { background: var(--tb-error); }
+    .btn-error:hover { background: #d32f2f; }
+    
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    
+    /* Main Content */
+    .main-content { 
+      flex: 1; 
+      padding: 24px; 
+      display: flex; 
+      flex-direction: column;
+      background: var(--tb-background);
+    }
+    
+    /* Widget Preview Header */
+    .preview-header { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      margin-bottom: 16px; 
+    }
+    .preview-title { 
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--tb-text-primary);
+    }
+    
+    /* Status Badge */
+    .status-badge { 
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 6px 12px; 
+      border-radius: 16px; 
+      background: var(--tb-surface);
+      text-transform: uppercase;
+    }
+    .status-badge .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--tb-text-disabled);
+    }
+    .status-badge.running .dot { background: var(--tb-success); }
+    .status-badge.stopped .dot { background: var(--tb-error); }
+    
+    /* Widget Container - TB Dashboard Style */
+    #widget-container { 
+      flex: 1;
+      background: var(--tb-surface); 
+      border-radius: 4px;
+      box-shadow: var(--tb-shadow-2);
+      overflow: hidden;
+      position: relative;
+      min-height: 400px;
+    }
+    
+    /* Log Panel */
+    .log-panel {
+      height: 160px;
+      background: #1e252e;
+      border-radius: 4px;
+      margin-top: 16px;
+      overflow-y: auto;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 11px;
+    }
+    .log-header {
+      position: sticky;
+      top: 0;
+      background: #1e252e;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--tb-divider);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .log-header-title {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--tb-text-secondary);
+    }
+    .log-content {
+      padding: 8px;
+    }
+    .log-entry { 
+      padding: 4px 8px; 
+      border-radius: 2px;
+      margin-bottom: 2px;
+    }
+    .log-entry:hover {
+      background: rgba(255,255,255,0.03);
+    }
+    .log-time { color: var(--tb-text-disabled); margin-right: 8px; }
+    .log-type { 
+      display: inline-block;
+      padding: 1px 6px; 
+      border-radius: 2px; 
+      margin-right: 8px;
+      font-size: 10px;
+      font-weight: 500;
+      text-transform: uppercase;
+    }
+    .log-type.info { background: var(--tb-info); color: white; }
+    .log-type.warn { background: var(--tb-warning); color: black; }
+    .log-type.error { background: var(--tb-error); color: white; }
+    .log-type.rpc { background: #7b1fa2; color: white; }
+    .log-type.data { background: var(--tb-success); color: white; }
+    .log-message { color: var(--tb-text-secondary); }
+    
+    /* Lifecycle Indicators */
+    .lifecycle-bar {
+      display: flex;
+      gap: 8px;
+      padding: 12px;
+      background: var(--tb-surface);
+      border-top: 1px solid var(--tb-divider);
+    }
+    .lifecycle-item {
+      flex: 1;
+      text-align: center;
+      padding: 8px;
+      font-size: 11px;
+      font-weight: 500;
+      background: var(--tb-surface-light);
+      border-radius: 4px;
+      color: var(--tb-text-disabled);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .lifecycle-item:hover {
+      background: rgba(255,255,255,0.1);
+    }
+    .lifecycle-item.active {
+      background: var(--tb-primary);
+      color: white;
+    }
+    .lifecycle-item.triggered {
+      animation: pulse 0.4s ease;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); background: var(--tb-accent); }
+      100% { transform: scale(1); }
+    }
+
+    /* Scrollbar - TB Style */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { 
+      background: rgba(255,255,255,0.2); 
+      border-radius: 4px; 
+    }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+    
+    /* Select */
+    .form-select {
+      width: 100%;
+      padding: 10px 12px;
+      background: var(--tb-surface);
+      border: 1px solid var(--tb-divider);
+      border-radius: 4px;
+      color: var(--tb-text-primary);
+      font-size: 14px;
+      cursor: pointer;
+    }
+    
+    /* Toggle Switch */
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+    }
+    .toggle-label {
+      font-size: 13px;
+      color: var(--tb-text-secondary);
+    }
+    .toggle {
+      position: relative;
+      width: 36px;
+      height: 20px;
+    }
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: var(--tb-text-disabled);
+      border-radius: 20px;
+      transition: 0.3s;
+    }
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 14px;
+      width: 14px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      border-radius: 50%;
+      transition: 0.3s;
+    }
+    .toggle input:checked + .toggle-slider {
+      background-color: var(--tb-accent);
+    }
+    .toggle input:checked + .toggle-slider:before {
+      transform: translateX(16px);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <span class="material-icons" style="margin-right: 12px;">dashboard</span>
+        <h2>Widget Simulator</h2>
+      </div>
+      
+      <!-- Tabs -->
+      <div class="tabs">
+        <div class="tab active" data-tab="data">Data</div>
+        <div class="tab" data-tab="settings">Settings</div>
+        <div class="tab" data-tab="rpc">RPC</div>
+      </div>
+      
+      <!-- Data Tab -->
+      <div class="tab-content active" data-tab="data">
+        <div class="card">
+          <div class="card-header">
+            <span class="material-icons">show_chart</span>
+            <span class="card-title">Telemetry Data</span>
+          </div>
+          <div class="card-content">
+            <div id="data-panel"></div>
+            <button class="btn btn-flat" onclick="addDataKey()" style="margin-top: 8px;">
+              <span class="material-icons">add</span>
+              Add Key
+            </button>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-header">
+            <span class="material-icons">sync</span>
+            <span class="card-title">Auto Update</span>
+          </div>
+          <div class="card-content">
+            <div class="form-group">
+              <label class="form-label">Update Interval (ms)</label>
+              <input type="number" class="form-input" id="update-interval" value="1000" min="100" max="10000">
+            </div>
+            <div class="btn-group">
+              <button class="btn btn-success" onclick="startAutoUpdate()" id="btn-start">
+                <span class="material-icons">play_arrow</span>
+                Start
+              </button>
+              <button class="btn btn-error" onclick="stopAutoUpdate()" id="btn-stop" disabled>
+                <span class="material-icons">stop</span>
+                Stop
+              </button>
+              <button class="btn" onclick="randomizeData()">
+                <span class="material-icons">shuffle</span>
+                Random
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Settings Tab -->
+      <div class="tab-content" data-tab="settings">
+        <div class="card">
+          <div class="card-header">
+            <span class="material-icons">settings</span>
+            <span class="card-title">Widget Settings</span>
+          </div>
+          <div class="card-content">
+            <div class="form-group">
+              <label class="form-label">Scale Mode</label>
+              <select class="form-select" id="setting-scale-mode" onchange="updateSettings()">
+                <option value="contain">Contain (Fit inside)</option>
+                <option value="stretch">Stretch (Fill container)</option>
+                <option value="none">None (Original size)</option>
+              </select>
+            </div>
+            
+            <div class="toggle-row">
+              <span class="toggle-label">Enable Interaction</span>
+              <label class="toggle">
+                <input type="checkbox" id="setting-interaction" checked onchange="updateSettings()">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            
+            <div class="toggle-row">
+              <span class="toggle-label">Enable Animation</span>
+              <label class="toggle">
+                <input type="checkbox" id="setting-animation" checked onchange="updateSettings()">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            
+            <div class="toggle-row">
+              <span class="toggle-label">Debug Mode</span>
+              <label class="toggle">
+                <input type="checkbox" id="setting-debug" onchange="updateSettings()">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-header">
+            <span class="material-icons">code</span>
+            <span class="card-title">SCADA Configuration</span>
+          </div>
+          <div class="card-content">
+            <div class="form-group">
+              <label class="form-label">View Config (JSON)</label>
+              <textarea class="form-textarea" id="setting-scada-config" style="height: 300px;" onchange="updateSettings()"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- RPC Tab -->
+      <div class="tab-content" data-tab="rpc">
+        <div class="card">
+          <div class="card-header">
+            <span class="material-icons">send</span>
+            <span class="card-title">Send RPC Command</span>
+          </div>
+          <div class="card-content">
+            <div class="form-group">
+              <label class="form-label">Method</label>
+              <input type="text" class="form-input" id="rpc-method" value="setValue" placeholder="e.g., setValue, getState">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Params (JSON)</label>
+              <textarea class="form-textarea" id="rpc-params" style="height: 80px;">{"key": "valve1", "value": 100}</textarea>
+            </div>
+            <div class="btn-group">
+              <button class="btn" onclick="sendRpcOneWay()">
+                <span class="material-icons">arrow_forward</span>
+                Send OneWay
+              </button>
+              <button class="btn btn-accent" onclick="sendRpcTwoWay()">
+                <span class="material-icons">swap_horiz</span>
+                Send TwoWay
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-header">
+            <span class="material-icons">reply</span>
+            <span class="card-title">Mock Response</span>
+          </div>
+          <div class="card-content">
+            <div class="form-group">
+              <label class="form-label">Response (JSON)</label>
+              <textarea class="form-textarea" id="rpc-mock-response" style="height: 60px;">{"success": true, "value": 123}</textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Lifecycle Bar -->
+      <div class="lifecycle-bar">
+        <div class="lifecycle-item" id="lc-init" onclick="triggerInit()">onInit</div>
+        <div class="lifecycle-item" id="lc-data" onclick="triggerDataUpdate()">onData</div>
+        <div class="lifecycle-item" id="lc-resize" onclick="triggerResize()">onResize</div>
+        <div class="lifecycle-item" id="lc-destroy" onclick="triggerDestroy()">onDestroy</div>
+      </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="preview-header">
+        <span class="preview-title">SCADA Widget Preview</span>
+        <div class="status-badge stopped" id="widget-status">
+          <span class="dot"></span>
+          <span>Stopped</span>
+        </div>
+      </div>
+      
+      <div id="widget-container"></div>
+      
+      <div class="log-panel">
+        <div class="log-header">
+          <span class="log-header-title">Console Output</span>
+          <button class="btn btn-flat" onclick="clearLogs()" style="padding: 4px 8px; font-size: 11px;">
+            <span class="material-icons" style="font-size: 14px;">delete</span>
+            Clear
+          </button>
+        </div>
+        <div class="log-content" id="log-panel"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ============================================
+    // Demo SCADA Configuration
+    // ============================================
+    var demoScadaConfig = {
+      view: {
+        id: "demo-view",
+        name: "Industrial Process Demo",
+        type: "svg",
+        width: 800,
+        height: 500,
+        backgroundColor: "#2a323d",
+        svgcontent: `<svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+          <!-- Background -->
+          <rect width="800" height="500" fill="#2a323d"/>
+          
+          <!-- Title -->
+          <text x="400" y="35" text-anchor="middle" fill="#fff" font-size="18" font-weight="500" font-family="Roboto">Industrial Process Monitoring</text>
+          
+          <!-- Tank -->
+          <g id="tank1" type="svg-ext-shapes">
+            <rect x="80" y="80" width="140" height="200" rx="8" fill="#305680" stroke="#4a7cb0" stroke-width="2"/>
+            <rect x="90" y="90" width="120" height="180" rx="4" fill="#3b4654"/>
+            <text x="150" y="300" text-anchor="middle" fill="#fff" font-size="14" font-family="Roboto">Storage Tank</text>
+          </g>
+          
+          <!-- Tank Level Display -->
+          <g id="tank-level-display" type="svg-ext-value">
+            <text x="150" y="180" text-anchor="middle" fill="#d97f0d" font-size="28" font-weight="500" font-family="Roboto">--</text>
+            <text x="150" y="205" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="12" font-family="Roboto">Level %</text>
+          </g>
+          
+          <!-- Pipe 1 -->
+          <path d="M220 180 L300 180" stroke="#4a7cb0" stroke-width="12" fill="none" stroke-linecap="round"/>
+          
+          <!-- Valve -->
+          <g id="valve1" type="svg-ext-shapes">
+            <rect x="300" y="160" width="50" height="40" rx="4" fill="#4caf50" stroke="#43a047" stroke-width="2"/>
+            <text x="325" y="185" text-anchor="middle" fill="#fff" font-size="14" font-weight="500" font-family="Roboto">V1</text>
+          </g>
+          
+          <!-- Pipe 2 -->
+          <path d="M350 180 L430 180" stroke="#4a7cb0" stroke-width="12" fill="none" stroke-linecap="round"/>
+          
+          <!-- Pump (only rotating part) -->
+          <g id="pump1" type="svg-ext-shapes">
+            <circle cx="490" cy="180" r="50" fill="#ff9800" stroke="#e65100" stroke-width="2"/>
+            <path d="M460 180 L490 150 L520 180 L490 210 Z" fill="#fff" opacity="0.3"/>
+          </g>
+          <!-- Pump Label (not rotating) -->
+          <text x="490" y="250" text-anchor="middle" fill="#fff" font-size="14" font-family="Roboto">Main Pump</text>
+          
+          <!-- Pipe 3 -->
+          <path d="M540 180 L620 180 L620 350 L350 350" stroke="#4a7cb0" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          
+          <!-- Output Tank -->
+          <g id="tank2" type="svg-ext-shapes">
+            <rect x="580" y="80" width="140" height="160" rx="8" fill="#305680" stroke="#4a7cb0" stroke-width="2"/>
+            <rect x="590" y="90" width="120" height="140" rx="4" fill="#3b4654"/>
+            <text x="650" y="260" text-anchor="middle" fill="#fff" font-size="14" font-family="Roboto">Output Tank</text>
+          </g>
+          
+          <!-- Info Panel -->
+          <g transform="translate(80, 350)">
+            <rect width="200" height="120" rx="4" fill="#323c49"/>
+            <text x="100" y="25" text-anchor="middle" fill="#d97f0d" font-size="14" font-weight="500" font-family="Roboto">System Status</text>
+            <line x1="10" y1="35" x2="190" y2="35" stroke="rgba(255,255,255,0.12)"/>
+            
+            <text x="15" y="60" fill="rgba(255,255,255,0.7)" font-size="12" font-family="Roboto">Temperature:</text>
+            <text id="temp-value" x="185" y="60" text-anchor="end" fill="#fff" font-size="12" font-family="Roboto">-- °C</text>
+            
+            <text x="15" y="80" fill="rgba(255,255,255,0.7)" font-size="12" font-family="Roboto">Pressure:</text>
+            <text id="press-value" x="185" y="80" text-anchor="end" fill="#fff" font-size="12" font-family="Roboto">-- kPa</text>
+            
+            <text x="15" y="100" fill="rgba(255,255,255,0.7)" font-size="12" font-family="Roboto">Flow Rate:</text>
+            <text id="flow-value" x="185" y="100" text-anchor="end" fill="#fff" font-size="12" font-family="Roboto">-- L/min</text>
+          </g>
+          
+          <!-- Alarm Indicator -->
+          <g id="alarm-indicator" type="svg-ext-shapes">
+            <circle cx="730" cy="440" r="20" fill="#4caf50"/>
+            <text x="730" y="445" text-anchor="middle" fill="#fff" font-size="12" font-weight="500" font-family="Roboto">OK</text>
+          </g>
+        </svg>`,
+        items: {
+          "tank1": {
+            id: "tank1",
+            type: "svg-ext-shapes",
+            property: {
+              variableId: "tank_level",
+              ranges: [
+                { min: 0, max: 30, color: "#f44336", stroke: "#d32f2f" },
+                { min: 30, max: 70, color: "#305680", stroke: "#4a7cb0" },
+                { min: 70, max: 100, color: "#4caf50", stroke: "#43a047" }
+              ]
+            }
+          },
+          "valve1": {
+            id: "valve1",
+            type: "svg-ext-shapes",
+            property: {
+              variableId: "valve_status",
+              ranges: [
+                { min: 0, max: 0, color: "#f44336", stroke: "#d32f2f" },
+                { min: 1, max: 1, color: "#4caf50", stroke: "#43a047" }
+              ]
+            }
+          },
+          "pump1": {
+            id: "pump1",
+            type: "svg-ext-shapes",
+            property: {
+              variableId: "pump_status",
+              ranges: [
+                { min: 0, max: 0, color: "#616161", stroke: "#424242" },
+                { min: 1, max: 1, color: "#ff9800", stroke: "#e65100" }
+              ],
+              actions: [
+                {
+                  variableId: "pump_status",
+                  type: "clockwise",
+                  range: { min: 1, max: 1 }
+                },
+                {
+                  variableId: "pump_status",
+                  type: "stop",
+                  range: { min: 0, max: 0 }
+                }
+              ]
+            }
+          },
+          "tank2": {
+            id: "tank2",
+            type: "svg-ext-shapes",
+            property: {
+              variableId: "output_level",
+              ranges: [
+                { min: 0, max: 50, color: "#305680", stroke: "#4a7cb0" },
+                { min: 50, max: 100, color: "#4caf50", stroke: "#43a047" }
+              ]
+            }
+          },
+          "alarm-indicator": {
+            id: "alarm-indicator",
+            type: "svg-ext-shapes",
+            property: {
+              variableId: "alarm_status",
+              ranges: [
+                { min: 0, max: 0, color: "#4caf50" },
+                { min: 1, max: 1, color: "#f44336" }
+              ],
+              actions: [
+                {
+                  variableId: "alarm_status",
+                  type: "blink",
+                  range: { min: 1, max: 1 },
+                  options: {
+                    fillA: "#f44336",
+                    fillB: "#b71c1c",
+                    interval: 500
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      renderOptions: {
+        scaleMode: "contain",
+        enableAnimation: true,
+        enableInteraction: true,
+        debug: false
+      }
+    };
+    
+    // ============================================
+    // Mock Data
+    // ============================================
+    var mockData = {
+      tank_level: { value: 65, type: 'timeseries' },
+      temperature: { value: 42.5, type: 'timeseries' },
+      pressure: { value: 101.3, type: 'timeseries' },
+      flow_rate: { value: 150, type: 'timeseries' },
+      pump_status: { value: 1, type: 'attribute' },
+      valve_status: { value: 1, type: 'attribute' },
+      output_level: { value: 45, type: 'timeseries' },
+      alarm_status: { value: 0, type: 'attribute' }
+    };
+    
+    var autoUpdateInterval = null;
+    var widgetInitialized = false;
+    var scadaRenderer = null;
+    var dataAdapter = null;
+    
+    // ============================================
+    // TB Widget API Simulation
+    // ============================================
+    var self = {
+      ctx: {
+        $container: null,
+        $scope: {},
+        settings: {
+          scadaConfig: null,
+          scaleMode: 'contain',
+          enableInteraction: true,
+          enableAnimation: true,
+          debug: false
+        },
+        defaultSubscription: {
+          data: []
+        },
+        width: 0,
+        height: 0,
+        detectChanges: function() {},
+        controlApi: {
+          sendOneWayCommand: function(method, params, timeout) {
+            log('rpc', 'OneWay: ' + method + '(' + JSON.stringify(params) + ')');
+            return Promise.resolve();
+          },
+          sendTwoWayCommand: function(method, params, timeout) {
+            log('rpc', 'TwoWay: ' + method + '(' + JSON.stringify(params) + ')');
+            var response = JSON.parse(document.getElementById('rpc-mock-response').value || '{}');
+            return Promise.resolve(response);
+          }
+        }
+      },
+      onInit: null,
+      onDataUpdated: null,
+      onResize: null,
+      onDestroy: null
+    };
+    
+    // ============================================
+    // Logging
+    // ============================================
+    function log(type, message) {
+      var panel = document.getElementById('log-panel');
+      var time = new Date().toLocaleTimeString();
+      var entry = document.createElement('div');
+      entry.className = 'log-entry';
+      entry.innerHTML = 
+        '<span class="log-time">' + time + '</span>' +
+        '<span class="log-type ' + type + '">' + type.toUpperCase() + '</span>' +
+        '<span class="log-message">' + escapeHtml(message) + '</span>';
+      panel.appendChild(entry);
+      panel.scrollTop = panel.scrollHeight;
+      
+      while (panel.children.length > 100) {
+        panel.removeChild(panel.firstChild);
+      }
+    }
+    
+    function escapeHtml(text) {
+      var div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+    
+    function clearLogs() {
+      document.getElementById('log-panel').innerHTML = '';
+      log('info', 'Logs cleared');
+    }
+    
+    // ============================================
+    // Data Functions
+    // ============================================
+    function toTbDataFormat(data) {
+      return Object.entries(data).map(function(entry) {
+        var key = entry[0];
+        var item = entry[1];
+        return {
+          dataKey: { name: key, type: item.type, label: key },
+          data: [[Date.now(), item.value]]
+        };
+      });
+    }
+    
+    function updateDataPanel() {
+      var html = '';
+      Object.entries(mockData).forEach(function(entry) {
+        var key = entry[0];
+        var item = entry[1];
+        html += '<div class="data-item">';
+        html += '<span class="data-key">' + key + '<span class="data-type">' + item.type.substr(0,4) + '</span></span>';
+        html += '<span class="data-value">' + item.value + '</span>';
+        html += '</div>';
+      });
+      document.getElementById('data-panel').innerHTML = html;
+    }
+    
+    function randomizeData() {
+      mockData.tank_level.value = Math.floor(20 + Math.random() * 70);
+      mockData.temperature.value = (35 + Math.random() * 20).toFixed(1);
+      mockData.pressure.value = (95 + Math.random() * 15).toFixed(1);
+      mockData.flow_rate.value = Math.floor(100 + Math.random() * 100);
+      mockData.pump_status.value = Math.random() > 0.2 ? 1 : 0;
+      mockData.valve_status.value = Math.random() > 0.3 ? 1 : 0;
+      mockData.output_level.value = Math.floor(20 + Math.random() * 60);
+      mockData.alarm_status.value = Math.random() > 0.9 ? 1 : 0;
+      
+      self.ctx.defaultSubscription.data = toTbDataFormat(mockData);
+      
+      if (typeof self.onDataUpdated === 'function') {
+        triggerLifecycle('lc-data');
+        self.onDataUpdated();
+      }
+      
+      updateDataPanel();
+    }
+    
+    function addDataKey() {
+      var key = prompt('Enter data key name:');
+      if (key && !mockData[key]) {
+        var value = prompt('Enter initial value:', '0');
+        mockData[key] = { 
+          value: isNaN(parseFloat(value)) ? value : parseFloat(value), 
+          type: 'timeseries' 
+        };
+        updateDataPanel();
+        self.ctx.defaultSubscription.data = toTbDataFormat(mockData);
+        log('info', 'Added key: ' + key);
+      }
+    }
+    
+    // ============================================
+    // Auto Update
+    // ============================================
+    function startAutoUpdate() {
+      if (!autoUpdateInterval) {
+        var interval = parseInt(document.getElementById('update-interval').value) || 1000;
+        autoUpdateInterval = setInterval(randomizeData, interval);
+        document.getElementById('btn-start').disabled = true;
+        document.getElementById('btn-stop').disabled = false;
+        updateStatus(true);
+        log('info', 'Auto update started (' + interval + 'ms)');
+      }
+    }
+    
+    function stopAutoUpdate() {
+      if (autoUpdateInterval) {
+        clearInterval(autoUpdateInterval);
+        autoUpdateInterval = null;
+        document.getElementById('btn-start').disabled = false;
+        document.getElementById('btn-stop').disabled = true;
+        updateStatus(false);
+        log('info', 'Auto update stopped');
+      }
+    }
+    
+    function updateStatus(running) {
+      var badge = document.getElementById('widget-status');
+      badge.className = 'status-badge ' + (running ? 'running' : 'stopped');
+      badge.innerHTML = '<span class="dot"></span><span>' + (running ? 'Running' : 'Stopped') + '</span>';
+    }
+    
+    // ============================================
+    // Settings
+    // ============================================
+    function updateSettings() {
+      self.ctx.settings.scaleMode = document.getElementById('setting-scale-mode').value;
+      self.ctx.settings.enableInteraction = document.getElementById('setting-interaction').checked;
+      self.ctx.settings.enableAnimation = document.getElementById('setting-animation').checked;
+      self.ctx.settings.debug = document.getElementById('setting-debug').checked;
+      
+      try {
+        var configText = document.getElementById('setting-scada-config').value;
+        if (configText) {
+          self.ctx.settings.scadaConfig = JSON.parse(configText);
+        }
+      } catch(e) {
+        log('warn', 'Invalid SCADA config JSON');
+      }
+    }
+    
+    // ============================================
+    // RPC Functions
+    // ============================================
+    function sendRpcOneWay() {
+      var method = document.getElementById('rpc-method').value;
+      try {
+        var params = JSON.parse(document.getElementById('rpc-params').value);
+        self.ctx.controlApi.sendOneWayCommand(method, params);
+      } catch(e) {
+        log('error', 'Invalid params JSON');
+      }
+    }
+    
+    function sendRpcTwoWay() {
+      var method = document.getElementById('rpc-method').value;
+      try {
+        var params = JSON.parse(document.getElementById('rpc-params').value);
+        self.ctx.controlApi.sendTwoWayCommand(method, params).then(function(response) {
+          log('info', 'Response: ' + JSON.stringify(response));
+        });
+      } catch(e) {
+        log('error', 'Invalid params JSON');
+      }
+    }
+    
+    // ============================================
+    // Lifecycle
+    // ============================================
+    function triggerLifecycle(id) {
+      var el = document.getElementById(id);
+      el.classList.add('active', 'triggered');
+      setTimeout(function() {
+        el.classList.remove('triggered');
+      }, 400);
+    }
+    
+    function triggerInit() {
+      if (typeof self.onInit === 'function') {
+        triggerLifecycle('lc-init');
+        self.onInit();
+        widgetInitialized = true;
+        log('info', 'Widget initialized');
+      } else {
+        log('warn', 'onInit not defined');
+      }
+    }
+    
+    function triggerDataUpdate() {
+      if (typeof self.onDataUpdated === 'function') {
+        triggerLifecycle('lc-data');
+        self.onDataUpdated();
+        log('data', 'Data updated');
+      }
+    }
+    
+    function triggerResize() {
+      var container = document.getElementById('widget-container');
+      self.ctx.width = container.clientWidth;
+      self.ctx.height = container.clientHeight;
+      
+      if (typeof self.onResize === 'function') {
+        triggerLifecycle('lc-resize');
+        self.onResize();
+        log('info', 'Resized: ' + self.ctx.width + 'x' + self.ctx.height);
+      }
+    }
+    
+    function triggerDestroy() {
+      if (typeof self.onDestroy === 'function') {
+        triggerLifecycle('lc-destroy');
+        self.onDestroy();
+        widgetInitialized = false;
+        log('info', 'Widget destroyed');
+      }
+      
+      stopAutoUpdate();
+      document.getElementById('widget-container').innerHTML = '';
+      document.querySelectorAll('.lifecycle-item').forEach(function(el) {
+        el.classList.remove('active');
+      });
+    }
+    
+    // ============================================
+    // Tab Switching
+    // ============================================
+    document.querySelectorAll('.tab').forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        var tabName = this.dataset.tab;
+        document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+        this.classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+        document.querySelector('.tab-content[data-tab="' + tabName + '"]').classList.add('active');
+      });
+    });
+    
+    // ============================================
+    // Window Resize
+    // ============================================
+    var resizeTimeout;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(function() {
+        if (widgetInitialized && typeof self.onResize === 'function') {
+          triggerResize();
+        }
+      }, 250);
+    });
+    
+    // ============================================
+    // Initialization
+    // ============================================
+    function init() {
+      self.ctx.$container = [document.getElementById('widget-container')];
+      
+      var container = document.getElementById('widget-container');
+      self.ctx.width = container.clientWidth;
+      self.ctx.height = container.clientHeight;
+      
+      // Set demo config
+      self.ctx.settings.scadaConfig = demoScadaConfig;
+      document.getElementById('setting-scada-config').value = JSON.stringify(demoScadaConfig, null, 2);
+      
+      updateDataPanel();
+      self.ctx.defaultSubscription.data = toTbDataFormat(mockData);
+      
+      log('info', 'ThingsBoard Widget Simulator ready');
+      log('info', 'Container size: ' + self.ctx.width + 'x' + self.ctx.height);
+    }
+    
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+  
+  <!-- Widget Implementation -->
+  <script type="module">
+    // Import FUXA Core modules
+    import { 
+      GaugesManager, 
+      HmiService, 
+      FuxaView,
+      Utils,
+      GaugeSettings,
+      GaugeProperty,
+      Variable,
+      View,
+      Hmi,
+      VERSION,
+      NAME
+    } from '../src/index.ts';
+    
+    console.log(`[${NAME}] Version ${VERSION} loaded`);
+    console.log('[FUXA Core] Modules imported successfully');
+    
+    // Store references globally for widget use
+    window.FuxaCore = {
+      GaugesManager,
+      HmiService,
+      FuxaView,
+      Utils,
+      View,
+      Hmi
+    };
+    
+    // Global instances
+    let hmiService = null;
+    let gaugesManager = null;
+    let fuxaView = null;
+    let projectService = null;
+    
+    /**
+     * Create a proper View object from the demo config
+     */
+    function createViewFromConfig(config) {
+      const view = new View();
+      view.id = config.id || 'demo-view';
+      view.name = config.name || 'Demo View';
+      view.svgcontent = config.svgcontent || '';
+      view.type = config.type || 'svg';
+      
+      // Profile settings
+      view.profile.width = config.width || 800;
+      view.profile.height = config.height || 500;
+      view.profile.bkcolor = config.backgroundColor || '#2a323d';
+      
+      // Items (gauge settings)
+      if (config.items) {
+        for (const [id, item] of Object.entries(config.items)) {
+          const gs = new GaugeSettings(id, item.type || 'svg-ext-shapes');
+          gs.name = item.name || id;
+          
+          // Create property
+          const prop = new GaugeProperty();
+          if (item.property) {
+            prop.variableId = item.property.variableId || '';
+            prop.ranges = item.property.ranges || [];
+            prop.actions = item.property.actions || [];
+            prop.events = item.property.events || [];
+          }
+          gs.property = prop;
+          
+          view.items[id] = gs;
+        }
+      }
+      
+      return view;
+    }
+    
+    /**
+     * Create a project service for FuxaView
+     */
+    function createProjectService(hmi, tags) {
+      return {
+        getHmi: () => hmi,
+        getDeviceFromId: (deviceId) => null,
+        getTagFromId: (tagId) => {
+          // Find tag by ID in our tags map
+          return tags[tagId] || null;
+        },
+        getScripts: () => []
+      };
+    }
+    
+    /**
+     * Convert TB data format to signal updates
+     */
+    function processDataUpdate(data) {
+      if (!hmiService) return;
+      
+      data.forEach(item => {
+        const key = item.dataKey.name;
+        const value = item.data.length > 0 ? item.data[0][1] : null;
+        
+        if (value !== null) {
+          // Create Variable signal - Variable(id, name, device?)
+          const signal = new Variable(key, key, undefined);
+          signal.value = value;
+          signal.timestamp = Date.now();
+          
+          // This will trigger the signal chain:
+          // HmiService.setSignalValue -> onVariableChanged.emit -> 
+          // GaugesManager.onchange.emit -> FuxaView.handleSignal
+          hmiService.setSignalValue(signal);
+        }
+      });
+    }
+    
+    // Initialize the widget
+    self.onInit = function() {
+      const container = self.ctx.$container[0];
+      
+      console.log('[Widget] Initializing with FuxaView...');
+      
+      try {
+        // Create services
+        hmiService = new HmiService();
+        gaugesManager = new GaugesManager();
+        
+        // Initialize GaugesManager with HmiService - this sets up the signal chain
+        gaugesManager.init(hmiService);
+        
+        // Store for global access
+        window.hmiService = hmiService;
+        window.gaugesManager = gaugesManager;
+        
+        console.log('[Widget] HmiService created');
+        console.log('[Widget] GaugesManager created and initialized');
+        console.log('[Widget] Registered gauges:', GaugesManager.Gauges.length);
+        
+        // Get SCADA config from settings
+        const scadaConfig = self.ctx.settings.scadaConfig;
+        if (!scadaConfig || !scadaConfig.view) {
+          console.warn('[Widget] No SCADA config provided, showing placeholder');
+          container.innerHTML = `
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:#888;">
+              <span class="material-icons" style="font-size:48px;margin-bottom:16px;">dashboard</span>
+              <div>No SCADA Configuration</div>
+              <div style="font-size:12px;margin-top:8px;">Configure a SCADA view in Settings tab</div>
+            </div>
+          `;
+          return;
+        }
+        
+        // Create View from config
+        const view = createViewFromConfig(scadaConfig.view);
+        console.log('[Widget] View created:', view.id, view.name);
+        console.log('[Widget] View items:', Object.keys(view.items).length);
+        
+        // Create HMI container
+        const hmi = new Hmi();
+        hmi.views = [view];
+        
+        // Create tags map from mock data
+        const tags = {};
+        Object.keys(mockData).forEach(key => {
+          tags[key] = { id: key, name: key, value: mockData[key].value };
+        });
+        
+        // Create project service
+        projectService = createProjectService(hmi, tags);
+        
+        // Create container for FuxaView
+        const viewContainer = document.createElement('div');
+        viewContainer.id = 'fuxa-view-container';
+        viewContainer.style.cssText = 'width:100%;height:100%;position:relative;';
+        container.innerHTML = '';
+        container.appendChild(viewContainer);
+        
+        // Create and initialize FuxaView
+        fuxaView = new FuxaView();
+        fuxaView.init(
+          viewContainer,
+          gaugesManager,
+          hmiService,
+          projectService
+        );
+        
+        // Load the view
+        fuxaView.loadHmi(view);
+        
+        console.log('[Widget] FuxaView initialized and view loaded');
+        
+        // Store reference
+        window.fuxaView = fuxaView;
+        
+        // Trigger initial data update
+        setTimeout(() => {
+          if (self.ctx.defaultSubscription?.data?.length > 0) {
+            self.onDataUpdated();
+          }
+        }, 100);
+        
+      } catch (err) {
+        console.error('[Widget] Error initializing:', err);
+        container.innerHTML = `
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:#f44336;">
+            <span class="material-icons" style="font-size:48px;margin-bottom:16px;">error</span>
+            <div>Initialization Error</div>
+            <div style="font-size:12px;margin-top:8px;max-width:80%;text-align:center;">${err.message}</div>
+          </div>
+        `;
+      }
+    };
+    
+    self.onDataUpdated = function() {
+      const data = self.ctx.defaultSubscription.data;
+      console.log('[Widget] Data updated:', data?.length, 'keys');
+      
+      if (!gaugesManager) {
+        console.warn('[Widget] GaugesManager not initialized');
+        return;
+      }
+      
+      // Process data through GaugesManager signal system
+      processDataUpdate(data);
+    };
+    
+    self.onResize = function() {
+      console.log('[Widget] Resize event');
+      if (fuxaView) {
+        fuxaView.onResize();
+      }
+    };
+    
+    self.onDestroy = function() {
+      console.log('[Widget] Destroy event');
+      if (fuxaView) {
+        fuxaView.destroy();
+        fuxaView = null;
+      }
+      hmiService = null;
+      gaugesManager = null;
+      projectService = null;
+    };
+    
+    // Auto-init after load
+    setTimeout(() => {
+      if (typeof self.onInit === 'function') {
+        document.getElementById('lc-init').classList.add('active');
+        self.onInit();
+      }
+    }, 500);
+  </script>
+</body>
+</html>

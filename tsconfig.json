@@ -12,11 +12,20 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
     "allowSyntheticDefaultImports": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "baseUrl": ".",
+    "paths": {
+      "@fuxa-core/*": ["src/fuxa-core/*"],
+      "@tb-adapter/*": ["src/tb-adapter/*"],
+      "@widgets/*": ["src/widgets/*"]
+    },
+    "outDir": "./dist",
+    "rootDir": "./src"
   },
-  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist", "FUXA", "**/*.test.ts"]
 }

@@ -34,7 +34,7 @@ coverage/
 *.temp
 
 # Build output - keep dist for delivery
-# dist/
+dist/
 
 # Reference source code - FUXA is for local reference only
 FUXA/

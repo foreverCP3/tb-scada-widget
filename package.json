@@ -2,7 +2,11 @@
   "name": "tb-scada-widget",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "description": "A SCADA/HMI widget for ThingsBoard, powered by FUXA rendering engine.",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/foreverCP3/tb-scada-widget.git"
@@ -19,13 +23,20 @@
   "license": "Apache-2.0",
   "author": "",
   "scripts": {
-    "dev": "vite dev/test-page.html",
-    "build": "node scripts/build.js",
+    "dev": "vite",
+    "build": "tsc && node scripts/build.js",
+    "build:ts": "tsc",
+    "check": "tsc --noEmit",
     "lint": "eslint src --ext .ts,.js",
     "lint:fix": "eslint src --ext .ts,.js --fix",
     "format": "prettier --write \"src/**/*.{ts,js,json,html,css}\""
   },
+  "dependencies": {
+    "@svgdotjs/svg.js": "^3.2.4",
+    "rxjs": "^7.8.2"
+  },
   "devDependencies": {
+    "@types/jquery": "^3.5.29",
     "@types/node": "^20.10.0",
     "@typescript-eslint/eslint-plugin": "^6.13.0",
     "@typescript-eslint/parser": "^6.13.0",
