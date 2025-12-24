@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>换热站监控系统 - ScadaViewerWidget 测试</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.2.4/dist/svg.min.js"></script>
+  
+  <style>
+    :root {
+      --bg-dark: #0a1929;
+      --bg-panel: #0d2137;
+      --border-color: #1e4976;
+      --accent-cyan: #00d4ff;
+      --accent-pink: #ff4081;
+      --text-primary: #ffffff;
+      --text-secondary: #8899a6;
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .header {
+      height: 50px;
+      background: linear-gradient(180deg, #0d2137 0%, #0a1929 100%);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    
+    .header-title {
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--accent-cyan);
+      text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+      letter-spacing: 6px;
+    }
+    
+    .header-info {
+      position: absolute;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      font-size: 12px;
+    }
+    
+    .header-time {
+      font-family: 'Roboto Mono', monospace;
+      color: var(--accent-cyan);
+    }
+    
+    .header-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4caf50;
+    }
+    
+    .main-container {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+    
+    .control-panel {
+      width: 260px;
+      background: var(--bg-panel);
+      border-right: 1px solid var(--border-color);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
+    }
+    
+    .widget-container {
+      flex: 1;
+      position: relative;
+    }
+    
+    #tb-widget-container {
+      width: 100%;
+      height: 100%;
+    }
+    
+    .card {
+      background: rgba(16, 42, 67, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+    }
+    
+    .card-header {
+      padding: 8px 12px;
+      background: linear-gradient(90deg, rgba(255, 64, 129, 0.3), transparent);
+      border-bottom: 1px solid var(--border-color);
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent-pink);
+    }
+    
+    .card-body {
+      padding: 10px;
+    }
+    
+    .data-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 12px;
+    }
+    
+    .data-row:last-child { border-bottom: none; }
+    
+    .data-label { color: var(--text-secondary); }
+    
+    .data-value {
+      font-family: 'Roboto Mono', monospace;
+      color: var(--accent-cyan);
+    }
+    
+    .data-value.pink { color: var(--accent-pink); }
+    
+    .btn {
+      padding: 8px 16px;
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-radius: 3px;
+    }
+    
+    .btn:hover {
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+    }
+    
+    .btn.active {
+      background: var(--accent-cyan);
+      border-color: var(--accent-cyan);
+      color: #000;
+    }
+    
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    
+    .slider-row {
+      margin: 8px 0;
+    }
+    
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      margin-bottom: 4px;
+    }
+    
+    .slider-label span:last-child {
+      color: var(--accent-cyan);
+      font-family: 'Roboto Mono', monospace;
+    }
+    
+    input[type="range"] {
+      width: 100%;
+      height: 4px;
+      background: var(--border-color);
+      border-radius: 2px;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      background: var(--accent-cyan);
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    
+    .log-panel {
+      height: 150px;
+      background: #050d15;
+      border-top: 1px solid var(--border-color);
+      font-family: 'Roboto Mono', monospace;
+      font-size: 11px;
+      overflow-y: auto;
+      padding: 8px;
+    }
+    
+    .log-entry {
+      padding: 2px 0;
+      color: var(--text-secondary);
+    }
+    
+    .log-entry .time { color: rgba(255,255,255,0.3); margin-right: 8px; }
+    .log-entry .type { margin-right: 8px; padding: 1px 6px; border-radius: 2px; font-size: 9px; }
+    .log-entry .type.data { background: #1976d2; color: #fff; }
+    .log-entry .type.signal { background: #7b1fa2; color: #fff; }
+    .log-entry .type.lifecycle { background: #388e3c; color: #fff; }
+    .log-entry .type.error { background: #d32f2f; color: #fff; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-title">换热站监控系统</div>
+    <div class="header-info">
+      <span class="header-time" id="current-time">00:00:00</span>
+      <div class="header-status">
+        <span class="status-dot"></span>
+        <span>Widget Running</span>
+      </div>
+    </div>
+  </div>
+  
+  <div class="main-container">
+    <div class="control-panel">
+      <!-- Lifecycle Control -->
+      <div class="card">
+        <div class="card-header">Widget Lifecycle</div>
+        <div class="card-body">
+          <div class="btn-group">
+            <button class="btn" onclick="initWidget()">onInit</button>
+            <button class="btn" onclick="updateData()">onDataUpdated</button>
+            <button class="btn" onclick="destroyWidget()">onDestroy</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Pump Controls -->
+      <div class="card">
+        <div class="card-header">泵组控制</div>
+        <div class="card-body">
+          <div class="slider-row">
+            <div class="slider-label">
+              <span>NO.1 循环泵</span>
+              <span id="pump1-value">1</span>
+            </div>
+            <input type="range" min="0" max="1" step="1" value="1" onchange="setPumpStatus('pump_1_status', this.value)">
+          </div>
+          <div class="slider-row">
+            <div class="slider-label">
+              <span>NO.2 循环泵</span>
+              <span id="pump2-value">1</span>
+            </div>
+            <input type="range" min="0" max="1" step="1" value="1" onchange="setPumpStatus('pump_2_status', this.value)">
+          </div>
+          <div class="slider-row">
+            <div class="slider-label">
+              <span>NO.1 补水泵</span>
+              <span id="pump3-value">1</span>
+            </div>
+            <input type="range" min="0" max="1" step="1" value="1" onchange="setPumpStatus('pump_3_status', this.value)">
+          </div>
+          <div class="slider-row">
+            <div class="slider-label">
+              <span>NO.2 补水泵</span>
+              <span id="pump4-value">0</span>
+            </div>
+            <input type="range" min="0" max="1" step="1" value="0" onchange="setPumpStatus('pump_4_status', this.value)">
+          </div>
+        </div>
+      </div>
+      
+      <!-- Temperature Controls -->
+      <div class="card">
+        <div class="card-header">温度控制</div>
+        <div class="card-body">
+          <div class="slider-row">
+            <div class="slider-label">
+              <span>供水温度</span>
+              <span id="supply-temp-value">90</span>°C
+            </div>
+            <input type="range" min="50" max="100" value="90" onchange="setSignalValue('supply_temp', this.value)">
+          </div>
+          <div class="slider-row">
+            <div class="slider-label">
+              <span>回水温度</span>
+              <span id="return-temp-value">65</span>°C
+            </div>
+            <input type="range" min="30" max="80" value="65" onchange="setSignalValue('return_temp', this.value)">
+          </div>
+        </div>
+      </div>
+      
+      <!-- Pressure Controls -->
+      <div class="card">
+        <div class="card-header">压力/液位控制</div>
+        <div class="card-body">
+          <div class="slider-row">
+            <div class="slider-label">
+              <span>供水压力</span>
+              <span id="supply-press-value">62</span>Mpa
+            </div>
+            <input type="range" min="40" max="80" value="62" onchange="setSignalValue('supply_pressure', this.value)">
+          </div>
+          <div class="slider-row">
+            <div class="slider-label">
+              <span>水箱液位</span>
+              <span id="tank-level-value">75</span>%
+            </div>
+            <input type="range" min="0" max="100" value="75" onchange="setSignalValue('tank_level', this.value)">
+          </div>
+        </div>
+      </div>
+      
+      <!-- Valve Controls -->
+      <div class="card">
+        <div class="card-header">阀门控制</div>
+        <div class="card-body">
+          <div class="slider-row">
+            <div class="slider-label">
+              <span>电磁阀 1</span>
+              <span id="valve1-value">63</span>%
+            </div>
+            <input type="range" min="0" max="100" value="63" onchange="setSignalValue('valve_1', this.value)">
+          </div>
+          <div class="slider-row">
+            <div class="slider-label">
+              <span>电磁阀 2</span>
+              <span id="valve2-value">90</span>%
+            </div>
+            <input type="range" min="0" max="100" value="90" onchange="setSignalValue('valve_2', this.value)">
+          </div>
+        </div>
+      </div>
+      
+      <!-- Auto Update -->
+      <div class="card">
+        <div class="card-header">自动更新</div>
+        <div class="card-body">
+          <div class="btn-group">
+            <button class="btn" id="btn-auto" onclick="toggleAutoUpdate()">开始自动更新</button>
+            <button class="btn" onclick="randomizeAll()">随机数据</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Current Data -->
+      <div class="card">
+        <div class="card-header">当前数据</div>
+        <div class="card-body" id="current-data">
+          <!-- Generated dynamically -->
+        </div>
+      </div>
+    </div>
+    
+    <div class="widget-container">
+      <div id="tb-widget-container"></div>
+    </div>
+  </div>
+  
+  <div class="log-panel" id="log-panel"></div>
+
+  <script type="module">
+    import { 
+      ScadaViewerWidget,
+      createScadaViewerWidget,
+      GaugeSettings,
+      GaugeProperty,
+      Variable,
+      View,
+      Hmi,
+      GaugeActionsType,
+      VERSION,
+      NAME
+    } from './src/index.ts';
+    
+    import './src/fuxa-core/theme/theme-styles.css';
+    
+    console.log(`[${NAME}] Version ${VERSION} - Heat Station Demo`);
+    
+    // ============================================
+    // Logging
+    // ============================================
+    window.log = function(type, message) {
+      const panel = document.getElementById('log-panel');
+      const time = new Date().toLocaleTimeString('zh-CN', { hour12: false });
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      entry.innerHTML = `<span class="time">${time}</span><span class="type ${type}">${type}</span>${message}`;
+      panel.appendChild(entry);
+      panel.scrollTop = panel.scrollHeight;
+      
+      while (panel.children.length > 100) {
+        panel.removeChild(panel.firstChild);
+      }
+    };
+    
+    // ============================================
+    // Mock TB Data - 模拟 ThingsBoard 遥测数据
+    // ============================================
+    window.mockTelemetry = {
+      // 温度
+      supply_temp: 90,
+      return_temp: 65,
+      supply_temp_2: 62,
+      return_temp_2: 52,
+      
+      // 压力
+      supply_pressure: 62,
+      return_pressure: 63,
+      supply_pressure_2: 51,
+      return_pressure_2: 53,
+      
+      // 流量
+      flow_rate_1: 54.8,
+      flow_rate_2: 50.3,
+      heat_1: 68.0,
+      heat_2: 51.9,
+      
+      // 泵状态 (1=运行, 0=停止)
+      pump_1_status: 1,
+      pump_2_status: 1,
+      pump_3_status: 1,
+      pump_4_status: 0,
+      
+      // 泵频率
+      pump_1_freq: 33.2,
+      pump_2_freq: 30.5,
+      pump_3_freq: 33.2,
+      pump_4_freq: 0,
+      
+      // 阀门开度
+      valve_1: 63,
+      valve_2: 90,
+      
+      // 水箱液位
+      tank_level: 75,
+      
+      // 报警状态
+      alarm_status: 0
+    };
+    
+    // ============================================
+    // 模拟 ThingsBoard Widget Context
+    // ============================================
+    const self = window.self = {
+      ctx: {
+        $container: null,
+        $scope: {},
+        settings: {
+          scadaConfig: null,
+          debug: true
+        },
+        defaultSubscription: {
+          data: []
+        },
+        width: 0,
+        height: 0,
+        detectChanges: () => {},
+        controlApi: {
+          sendOneWayCommand: (method, params, timeout) => {
+            log('signal', `RPC OneWay: ${method}(${JSON.stringify(params)})`);
+            return Promise.resolve();
+          },
+          sendTwoWayCommand: (method, params, timeout) => {
+            log('signal', `RPC TwoWay: ${method}(${JSON.stringify(params)})`);
+            return Promise.resolve({ success: true });
+          }
+        }
+      },
+      onInit: null,
+      onDataUpdated: null,
+      onResize: null,
+      onDestroy: null
+    };
+    
+    // ============================================
+    // 转换为 TB 数据格式
+    // ============================================
+    function toTbDataFormat(data) {
+      return Object.entries(data).map(([key, value]) => ({
+        dataKey: { name: key, type: 'timeseries', label: key },
+        data: [[Date.now(), value]]
+      }));
+    }
+    
+    // ============================================
+    // 换热站 SCADA 配置
+    // ============================================
+    const heatStationConfig = {
+      view: {
+        id: "heat-station-view",
+        name: "换热站监控",
+        profile: {
+          bkcolor: "#0a1929"
+        },
+        svgcontent: `<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <!-- 管道渐变 -->
+            <linearGradient id="pipeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" style="stop-color:#2196f3"/>
+              <stop offset="50%" style="stop-color:#1565c0"/>
+              <stop offset="100%" style="stop-color:#2196f3"/>
+            </linearGradient>
+            
+            <!-- 水箱水位渐变 -->
+            <linearGradient id="waterGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:0.8"/>
+              <stop offset="100%" style="stop-color:#0288d1;stop-opacity:0.9"/>
+            </linearGradient>
+            
+            <!-- 流动动画 Pattern -->
+            <pattern id="flowPattern" patternUnits="userSpaceOnUse" width="20" height="10">
+              <rect width="20" height="10" fill="#1565c0"/>
+              <rect x="0" y="3" width="8" height="4" fill="#00d4ff">
+                <animate attributeName="x" from="-8" to="20" dur="0.5s" repeatCount="indefinite"/>
+              </rect>
+            </pattern>
+          </defs>
+          
+          <!-- 背景 -->
+          <rect width="1200" height="700" fill="#0a1929"/>
+          
+          <!-- 网格 -->
+          <g stroke="rgba(30, 73, 118, 0.2)" stroke-width="1">
+            ${Array.from({length: 31}, (_, i) => `<line x1="${i*40}" y1="0" x2="${i*40}" y2="700"/>`).join('')}
+            ${Array.from({length: 18}, (_, i) => `<line x1="0" y1="${i*40}" x2="1200" y2="${i*40}"/>`).join('')}
+          </g>
+          
+          <!-- ========== 一次侧供水管道 ========== -->
+          <g id="pipe-supply-main" type="svg-ext-pipe">
+            <rect x="50" y="80" width="1100" height="14" fill="url(#flowPattern)" rx="2"/>
+          </g>
+          <text x="600" y="70" text-anchor="middle" fill="#8899a6" font-size="12">一次侧供水母管</text>
+          
+          <!-- ========== 一次侧回水管道 ========== -->
+          <g id="pipe-return-main" type="svg-ext-pipe">
+            <rect x="50" y="600" width="1100" height="14" fill="url(#flowPattern)" rx="2"/>
+          </g>
+          <text x="600" y="640" text-anchor="middle" fill="#8899a6" font-size="12">一次侧回水母管</text>
+          
+          <!-- ========== 1# 换热器组 ========== -->
+          <g transform="translate(150, 140)">
+            <!-- 换热器本体 -->
+            <g id="exchanger-1" type="svg-ext-shapes">
+              <rect x="0" y="0" width="100" height="150" rx="4" fill="#102a43" stroke="#1e88e5" stroke-width="2"/>
+              <line x1="15" y1="25" x2="85" y2="25" stroke="#00d4ff" stroke-width="2" opacity="0.6"/>
+              <line x1="15" y1="50" x2="85" y2="50" stroke="#00d4ff" stroke-width="2" opacity="0.6"/>
+              <line x1="15" y1="75" x2="85" y2="75" stroke="#00d4ff" stroke-width="2" opacity="0.6"/>
+              <line x1="15" y1="100" x2="85" y2="100" stroke="#00d4ff" stroke-width="2" opacity="0.6"/>
+              <line x1="15" y1="125" x2="85" y2="125" stroke="#00d4ff" stroke-width="2" opacity="0.6"/>
+            </g>
+            <text x="50" y="170" text-anchor="middle" fill="#fff" font-size="12">1#换热器</text>
+            
+            <!-- 连接管道 -->
+            <rect x="-60" y="30" width="65" height="10" fill="url(#pipeGradient)"/>
+            <rect x="-60" y="110" width="65" height="10" fill="url(#pipeGradient)"/>
+            <rect x="95" y="30" width="65" height="10" fill="url(#pipeGradient)"/>
+            <rect x="95" y="110" width="65" height="10" fill="url(#pipeGradient)"/>
+            
+            <!-- 垂直管道 -->
+            <rect x="40" y="-60" width="10" height="65" fill="url(#pipeGradient)"/>
+            <rect x="40" y="145" width="10" height="320" fill="url(#pipeGradient)"/>
+          </g>
+          
+          <!-- 1# 循环泵 -->
+          <g id="pump-1" type="svg-ext-shapes" transform="translate(280, 200)">
+            <circle cx="30" cy="30" r="28" fill="#0d2137" stroke="#1e88e5" stroke-width="2"/>
+            <circle cx="30" cy="30" r="22" fill="#102a43" stroke="#00d4ff" stroke-width="1"/>
+            <g class="pump-blades">
+              <path d="M30 10 L35 30 L30 50 L25 30 Z" fill="#00d4ff" opacity="0.8"/>
+              <path d="M10 30 L30 25 L50 30 L30 35 Z" fill="#00d4ff" opacity="0.8"/>
+            </g>
+          </g>
+          <text x="310" y="275" text-anchor="middle" fill="#fff" font-size="10">NO.1循环泵</text>
+          <g id="pump-1-freq" type="svg-ext-value">
+            <text x="310" y="290" text-anchor="middle" fill="#00d4ff" font-size="11">33.2 Hz</text>
+          </g>
+          
+          <!-- 1# 电磁阀 -->
+          <g id="valve-1" type="svg-ext-shapes" transform="translate(170, 105)">
+            <path d="M0 15 L12 0 L12 30 Z" fill="#4caf50" stroke="#2e7d32" stroke-width="1"/>
+            <path d="M30 15 L18 0 L18 30 Z" fill="#4caf50" stroke="#2e7d32" stroke-width="1"/>
+            <rect x="12" y="10" width="6" height="10" fill="#81c784"/>
+          </g>
+          <g id="valve-1-value" type="svg-ext-value">
+            <text x="185" y="150" text-anchor="middle" fill="#00d4ff" font-size="10">63.3%</text>
+          </g>
+          
+          <!-- 1# 数据显示面板 -->
+          <g transform="translate(50, 320)">
+            <rect x="0" y="0" width="130" height="80" fill="#0d2137" stroke="#1e4976" rx="3"/>
+            <text x="10" y="20" fill="#8899a6" font-size="10">瞬时流量</text>
+            <g id="flow-1-display" type="svg-ext-value">
+              <text x="120" y="20" text-anchor="end" fill="#00d4ff" font-size="12" font-weight="500">54.8 m³/h</text>
+            </g>
+            <text x="10" y="45" fill="#8899a6" font-size="10">瞬时热量</text>
+            <g id="heat-1-display" type="svg-ext-value">
+              <text x="120" y="45" text-anchor="end" fill="#ff4081" font-size="12" font-weight="500">68.0 GJ</text>
+            </g>
+            <text x="10" y="70" fill="#8899a6" font-size="10">电磁阀</text>
+            <g id="valve-1-display" type="svg-ext-value">
+              <text x="120" y="70" text-anchor="end" fill="#00d4ff" font-size="12" font-weight="500">63.3 %</text>
+            </g>
+          </g>
+          
+          <!-- ========== 2# 换热器组 ========== -->
+          <g transform="translate(500, 180)">
+            <!-- 换热器本体 -->
+            <g id="exchanger-2" type="svg-ext-shapes">
+              <rect x="0" y="0" width="100" height="150" rx="4" fill="#102a43" stroke="#1e88e5" stroke-width="2"/>
+              <line x1="15" y1="25" x2="85" y2="25" stroke="#00d4ff" stroke-width="2" opacity="0.6"/>
+              <line x1="15" y1="50" x2="85" y2="50" stroke="#00d4ff" stroke-width="2" opacity="0.6"/>
+              <line x1="15" y1="75" x2="85" y2="75" stroke="#00d4ff" stroke-width="2" opacity="0.6"/>
+              <line x1="15" y1="100" x2="85" y2="100" stroke="#00d4ff" stroke-width="2" opacity="0.6"/>
+              <line x1="15" y1="125" x2="85" y2="125" stroke="#00d4ff" stroke-width="2" opacity="0.6"/>
+            </g>
+            <text x="50" y="170" text-anchor="middle" fill="#fff" font-size="12">2#换热器</text>
+            
+            <!-- 连接管道 -->
+            <rect x="-60" y="30" width="65" height="10" fill="url(#pipeGradient)"/>
+            <rect x="-60" y="110" width="65" height="10" fill="url(#pipeGradient)"/>
+            <rect x="95" y="30" width="65" height="10" fill="url(#pipeGradient)"/>
+            <rect x="95" y="110" width="65" height="10" fill="url(#pipeGradient)"/>
+            
+            <!-- 垂直管道 -->
+            <rect x="40" y="-100" width="10" height="105" fill="url(#pipeGradient)"/>
+            <rect x="40" y="145" width="10" height="280" fill="url(#pipeGradient)"/>
+          </g>
+          
+          <!-- 2# 循环泵 -->
+          <g id="pump-2" type="svg-ext-shapes" transform="translate(630, 240)">
+            <circle cx="30" cy="30" r="28" fill="#0d2137" stroke="#1e88e5" stroke-width="2"/>
+            <circle cx="30" cy="30" r="22" fill="#102a43" stroke="#00d4ff" stroke-width="1"/>
+            <g class="pump-blades">
+              <path d="M30 10 L35 30 L30 50 L25 30 Z" fill="#00d4ff" opacity="0.8"/>
+              <path d="M10 30 L30 25 L50 30 L30 35 Z" fill="#00d4ff" opacity="0.8"/>
+            </g>
+          </g>
+          <text x="660" y="315" text-anchor="middle" fill="#fff" font-size="10">NO.2循环泵</text>
+          <g id="pump-2-freq" type="svg-ext-value">
+            <text x="660" y="330" text-anchor="middle" fill="#00d4ff" font-size="11">30.5 Hz</text>
+          </g>
+          
+          <!-- 2# 电磁阀 -->
+          <g id="valve-2" type="svg-ext-shapes" transform="translate(520, 145)">
+            <path d="M0 15 L12 0 L12 30 Z" fill="#4caf50" stroke="#2e7d32" stroke-width="1"/>
+            <path d="M30 15 L18 0 L18 30 Z" fill="#4caf50" stroke="#2e7d32" stroke-width="1"/>
+            <rect x="12" y="10" width="6" height="10" fill="#81c784"/>
+          </g>
+          <g id="valve-2-value" type="svg-ext-value">
+            <text x="535" y="190" text-anchor="middle" fill="#00d4ff" font-size="10">90%</text>
+          </g>
+          
+          <!-- 2# 数据显示面板 -->
+          <g transform="translate(400, 380)">
+            <rect x="0" y="0" width="130" height="80" fill="#0d2137" stroke="#1e4976" rx="3"/>
+            <text x="10" y="20" fill="#8899a6" font-size="10">瞬时流量</text>
+            <g id="flow-2-display" type="svg-ext-value">
+              <text x="120" y="20" text-anchor="end" fill="#00d4ff" font-size="12" font-weight="500">50.3 m³/h</text>
+            </g>
+            <text x="10" y="45" fill="#8899a6" font-size="10">瞬时热量</text>
+            <g id="heat-2-display" type="svg-ext-value">
+              <text x="120" y="45" text-anchor="end" fill="#ff4081" font-size="12" font-weight="500">51.9 GJ</text>
+            </g>
+            <text x="10" y="70" fill="#8899a6" font-size="10">电磁阀</text>
+            <g id="valve-2-display" type="svg-ext-value">
+              <text x="120" y="70" text-anchor="end" fill="#00d4ff" font-size="12" font-weight="500">90 %</text>
+            </g>
+          </g>
+          
+          <!-- ========== 供水温度压力显示 ========== -->
+          <g transform="translate(100, 120)">
+            <rect x="0" y="0" width="110" height="55" fill="#0d2137" stroke="#1e4976" rx="3"/>
+            <text x="10" y="18" fill="#8899a6" font-size="10">供水压力</text>
+            <g id="supply-press-display" type="svg-ext-value">
+              <text x="100" y="18" text-anchor="end" fill="#00d4ff" font-size="11">62.1 Mpa</text>
+            </g>
+            <text x="10" y="42" fill="#8899a6" font-size="10">供水温度</text>
+            <g id="supply-temp-display" type="svg-ext-value">
+              <text x="100" y="42" text-anchor="end" fill="#ff4081" font-size="11">90.0 °C</text>
+            </g>
+          </g>
+          
+          <!-- ========== 回水温度压力显示 ========== -->
+          <g transform="translate(100, 500)">
+            <rect x="0" y="0" width="110" height="55" fill="#0d2137" stroke="#1e4976" rx="3"/>
+            <text x="10" y="18" fill="#8899a6" font-size="10">回水压力</text>
+            <g id="return-press-display" type="svg-ext-value">
+              <text x="100" y="18" text-anchor="end" fill="#00d4ff" font-size="11">63.0 Mpa</text>
+            </g>
+            <text x="10" y="42" fill="#8899a6" font-size="10">回水温度</text>
+            <g id="return-temp-display" type="svg-ext-value">
+              <text x="100" y="42" text-anchor="end" fill="#ff4081" font-size="11">65.0 °C</text>
+            </g>
+          </g>
+          
+          <!-- ========== 水箱 ========== -->
+          <g transform="translate(850, 280)">
+            <!-- 水箱本体 -->
+            <g id="water-tank" type="svg-ext-shapes">
+              <rect x="0" y="0" width="120" height="180" rx="4" fill="#102a43" stroke="#1e88e5" stroke-width="2"/>
+              <!-- 水位（会动态更新） -->
+              <rect id="water-level-rect" x="5" y="45" width="110" height="130" fill="url(#waterGradient)" rx="2"/>
+            </g>
+            <text x="60" y="200" text-anchor="middle" fill="#fff" font-size="12">补水箱</text>
+            
+            <!-- 液位显示 -->
+            <g id="tank-level-display" type="svg-ext-value">
+              <text x="60" y="100" text-anchor="middle" fill="#fff" font-size="24" font-weight="500">75%</text>
+            </g>
+            <text x="60" y="120" text-anchor="middle" fill="#8899a6" font-size="10">水箱液位</text>
+            
+            <!-- 进水管道 -->
+            <rect x="-80" y="50" width="85" height="10" fill="url(#pipeGradient)"/>
+            
+            <!-- 出水管道 -->
+            <rect x="50" y="175" width="10" height="50" fill="url(#pipeGradient)"/>
+          </g>
+          
+          <!-- ========== 补水泵组 ========== -->
+          <!-- 补水泵 1 -->
+          <g id="pump-3" type="svg-ext-shapes" transform="translate(820, 500)">
+            <circle cx="25" cy="25" r="23" fill="#0d2137" stroke="#1e88e5" stroke-width="2"/>
+            <circle cx="25" cy="25" r="18" fill="#102a43" stroke="#00d4ff" stroke-width="1"/>
+            <g class="pump-blades">
+              <path d="M25 8 L29 25 L25 42 L21 25 Z" fill="#00d4ff" opacity="0.8"/>
+              <path d="M8 25 L25 21 L42 25 L25 29 Z" fill="#00d4ff" opacity="0.8"/>
+            </g>
+          </g>
+          <text x="845" y="565" text-anchor="middle" fill="#fff" font-size="9">NO.1补水泵</text>
+          <g id="pump-3-freq" type="svg-ext-value">
+            <text x="845" y="580" text-anchor="middle" fill="#00d4ff" font-size="10">33.2 Hz</text>
+          </g>
+          
+          <!-- 补水泵 2 -->
+          <g id="pump-4" type="svg-ext-shapes" transform="translate(920, 500)">
+            <circle cx="25" cy="25" r="23" fill="#0d2137" stroke="#1e88e5" stroke-width="2"/>
+            <circle cx="25" cy="25" r="18" fill="#102a43" stroke="#00d4ff" stroke-width="1"/>
+            <g class="pump-blades">
+              <path d="M25 8 L29 25 L25 42 L21 25 Z" fill="#00d4ff" opacity="0.8"/>
+              <path d="M8 25 L25 21 L42 25 L25 29 Z" fill="#00d4ff" opacity="0.8"/>
+            </g>
+          </g>
+          <text x="945" y="565" text-anchor="middle" fill="#fff" font-size="9">NO.2补水泵</text>
+          <g id="pump-4-freq" type="svg-ext-value">
+            <text x="945" y="580" text-anchor="middle" fill="#00d4ff" font-size="10">0 Hz</text>
+          </g>
+          
+          <!-- 补水泵连接管道 -->
+          <rect x="855" y="460" width="10" height="45" fill="url(#pipeGradient)"/>
+          <rect x="935" y="460" width="10" height="45" fill="url(#pipeGradient)"/>
+          <rect x="855" y="545" width="10" height="60" fill="url(#pipeGradient)"/>
+          <rect x="935" y="545" width="10" height="60" fill="url(#pipeGradient)"/>
+          
+          <!-- ========== 温度指示器（圆形） ========== -->
+          <g id="temp-indicator-1" type="svg-ext-shapes">
+            <circle cx="250" cy="95" r="16" fill="#102a43" stroke="#ff4081" stroke-width="2"/>
+            <text x="250" y="100" text-anchor="middle" fill="#ff4081" font-size="11" font-weight="500">90</text>
+          </g>
+          
+          <g id="temp-indicator-2" type="svg-ext-shapes">
+            <circle cx="250" y="600" r="16" fill="#102a43" stroke="#00d4ff" stroke-width="2"/>
+            <text x="250" y="605" text-anchor="middle" fill="#00d4ff" font-size="11" font-weight="500">65</text>
+          </g>
+          
+          <g id="press-indicator-1" type="svg-ext-shapes">
+            <circle cx="600" cy="95" r="16" fill="#102a43" stroke="#00d4ff" stroke-width="2"/>
+            <text x="600" y="100" text-anchor="middle" fill="#00d4ff" font-size="11" font-weight="500">62</text>
+          </g>
+          
+          <g id="press-indicator-2" type="svg-ext-shapes">
+            <circle cx="750" cy="95" r="16" fill="#102a43" stroke="#ff4081" stroke-width="2"/>
+            <text x="750" y="100" text-anchor="middle" fill="#ff4081" font-size="11" font-weight="500">51</text>
+          </g>
+          
+          <!-- ========== 报警指示器 ========== -->
+          <g id="alarm-indicator" type="svg-ext-shapes" transform="translate(1050, 50)">
+            <circle cx="20" cy="20" r="18" fill="#4caf50"/>
+            <text x="20" y="25" text-anchor="middle" fill="#fff" font-size="10" font-weight="500">正常</text>
+          </g>
+          
+          <!-- ========== 装饰边角 ========== -->
+          <g stroke="#00d4ff" stroke-width="2" fill="none" opacity="0.6">
+            <path d="M5 30 L5 5 L30 5"/>
+            <path d="M1170 5 L1195 5 L1195 30"/>
+            <path d="M5 670 L5 695 L30 695"/>
+            <path d="M1170 695 L1195 695 L1195 670"/>
+          </g>
+          
+          <!-- ========== 流动指示点 ========== -->
+          <g fill="#00d4ff" opacity="0.9">
+            <circle r="4">
+              <animateMotion dur="3s" repeatCount="indefinite" path="M50 87 L1150 87"/>
+            </circle>
+            <circle r="4">
+              <animateMotion dur="3s" repeatCount="indefinite" path="M1150 607 L50 607"/>
+            </circle>
+          </g>
+        </svg>`,
+        items: {
+          // 泵组 - 使用 clockwise 动作
+          "pump-1": {
+            id: "pump-1",
+            name: "NO.1循环泵",
+            type: "svg-ext-shapes",
+            property: {
+              variableId: "pump_1_status",
+              actions: [
+                { variableId: "pump_1_status", type: "clockwise", range: { min: 1, max: 1 }, options: {} }
+              ]
+            }
+          },
+          "pump-2": {
+            id: "pump-2",
+            name: "NO.2循环泵",
+            type: "svg-ext-shapes",
+            property: {
+              variableId: "pump_2_status",
+              actions: [
+                { variableId: "pump_2_status", type: "clockwise", range: { min: 1, max: 1 }, options: {} }
+              ]
+            }
+          },
+          "pump-3": {
+            id: "pump-3",
+            name: "NO.1补水泵",
+            type: "svg-ext-shapes",
+            property: {
+              variableId: "pump_3_status",
+              actions: [
+                { variableId: "pump_3_status", type: "clockwise", range: { min: 1, max: 1 }, options: {} }
+              ]
+            }
+          },
+          "pump-4": {
+            id: "pump-4",
+            name: "NO.2补水泵",
+            type: "svg-ext-shapes",
+            property: {
+              variableId: "pump_4_status",
+              actions: [
+                { variableId: "pump_4_status", type: "clockwise", range: { min: 1, max: 1 }, options: {} }
+              ]
+            }
+          },
+          
+          // 阀门 - 颜色变化
+          "valve-1": {
+            id: "valve-1",
+            name: "电磁阀1",
+            type: "svg-ext-shapes",
+            property: {
+              variableId: "valve_1",
+              ranges: [
+                { min: 0, max: 30, color: "#f44336", stroke: "#b71c1c" },
+                { min: 30, max: 70, color: "#ff9800", stroke: "#e65100" },
+                { min: 70, max: 100, color: "#4caf50", stroke: "#2e7d32" }
+              ]
+            }
+          },
+          "valve-2": {
+            id: "valve-2",
+            name: "电磁阀2",
+            type: "svg-ext-shapes",
+            property: {
+              variableId: "valve_2",
+              ranges: [
+                { min: 0, max: 30, color: "#f44336", stroke: "#b71c1c" },
+                { min: 30, max: 70, color: "#ff9800", stroke: "#e65100" },
+                { min: 70, max: 100, color: "#4caf50", stroke: "#2e7d32" }
+              ]
+            }
+          },
+          
+          // 报警指示器
+          "alarm-indicator": {
+            id: "alarm-indicator",
+            name: "报警指示",
+            type: "svg-ext-shapes",
+            property: {
+              variableId: "alarm_status",
+              ranges: [
+                { min: 0, max: 0, color: "#4caf50" },
+                { min: 1, max: 1, color: "#f44336" }
+              ],
+              actions: [
+                { variableId: "alarm_status", type: "blink", range: { min: 1, max: 1 }, options: { fillA: "#f44336", fillB: "#b71c1c", interval: 500 } }
+              ]
+            }
+          },
+          
+          // 水箱 - 液位颜色变化
+          "water-tank": {
+            id: "water-tank",
+            name: "水箱",
+            type: "svg-ext-shapes",
+            property: {
+              variableId: "tank_level",
+              ranges: [
+                { min: 0, max: 20, color: "#f44336" },
+                { min: 20, max: 50, color: "#ff9800" },
+                { min: 50, max: 100, color: "#1e88e5" }
+              ]
+            }
+          }
+        }
+      }
+    };
+    
+    // ============================================
+    // Widget Instance
+    // ============================================
+    let widgetInstance = null;
+    let autoUpdateInterval = null;
+    
+    // ============================================
+    // Initialize Widget
+    // ============================================
+    window.initWidget = function() {
+      const container = document.getElementById('tb-widget-container');
+      
+      // Setup TB context
+      self.ctx.$container = [container];
+      self.ctx.width = container.clientWidth;
+      self.ctx.height = container.clientHeight;
+      self.ctx.settings.scadaConfig = heatStationConfig;
+      self.ctx.defaultSubscription.data = toTbDataFormat(mockTelemetry);
+      
+      // Create widget using our factory function
+      widgetInstance = createScadaViewerWidget(self);
+      
+      // Call onInit
+      if (self.onInit) {
+        self.onInit();
+        log('lifecycle', 'Widget initialized - onInit() called');
+      }
+      
+      // Initial data update
+      setTimeout(() => {
+        if (self.onDataUpdated) {
+          self.onDataUpdated();
+          log('data', 'Initial data update - onDataUpdated() called');
+        }
+      }, 100);
+      
+      updateCurrentDataDisplay();
+    };
+    
+    // ============================================
+    // Update Data
+    // ============================================
+    window.updateData = function() {
+      self.ctx.defaultSubscription.data = toTbDataFormat(mockTelemetry);
+      
+      if (self.onDataUpdated) {
+        self.onDataUpdated();
+        log('data', `Data updated: pump1=${mockTelemetry.pump_1_status}, temp=${mockTelemetry.supply_temp}°C`);
+      }
+      
+      updateCurrentDataDisplay();
+    };
+    
+    // ============================================
+    // Destroy Widget
+    // ============================================
+    window.destroyWidget = function() {
+      if (self.onDestroy) {
+        self.onDestroy();
+        log('lifecycle', 'Widget destroyed - onDestroy() called');
+      }
+      
+      widgetInstance = null;
+      stopAutoUpdate();
+    };
+    
+    // ============================================
+    // Signal Control Functions
+    // ============================================
+    window.setSignalValue = function(key, value) {
+      mockTelemetry[key] = parseFloat(value);
+      
+      // Update UI displays
+      const displayMap = {
+        'supply_temp': 'supply-temp-value',
+        'return_temp': 'return-temp-value',
+        'supply_pressure': 'supply-press-value',
+        'tank_level': 'tank-level-value',
+        'valve_1': 'valve1-value',
+        'valve_2': 'valve2-value'
+      };
+      
+      if (displayMap[key]) {
+        document.getElementById(displayMap[key]).textContent = value;
+      }
+      
+      log('signal', `Signal ${key} = ${value}`);
+      updateData();
+    };
+    
+    window.setPumpStatus = function(key, value) {
+      mockTelemetry[key] = parseInt(value);
+      
+      // Update frequency based on status
+      const freqKey = key.replace('_status', '_freq');
+      mockTelemetry[freqKey] = value == 1 ? (30 + Math.random() * 10).toFixed(1) : 0;
+      
+      // Update UI
+      const pumpNum = key.match(/\d/)[0];
+      document.getElementById(`pump${pumpNum}-value`).textContent = value;
+      
+      log('signal', `Pump ${pumpNum} status = ${value == 1 ? 'ON' : 'OFF'}`);
+      updateData();
+    };
+    
+    // ============================================
+    // Auto Update
+    // ============================================
+    window.toggleAutoUpdate = function() {
+      const btn = document.getElementById('btn-auto');
+      
+      if (autoUpdateInterval) {
+        stopAutoUpdate();
+        btn.textContent = '开始自动更新';
+        btn.classList.remove('active');
+      } else {
+        autoUpdateInterval = setInterval(() => {
+          randomizeAll();
+        }, 2000);
+        btn.textContent = '停止自动更新';
+        btn.classList.add('active');
+        log('lifecycle', 'Auto update started');
+      }
+    };
+    
+    function stopAutoUpdate() {
+      if (autoUpdateInterval) {
+        clearInterval(autoUpdateInterval);
+        autoUpdateInterval = null;
+        document.getElementById('btn-auto').classList.remove('active');
+        document.getElementById('btn-auto').textContent = '开始自动更新';
+      }
+    }
+    
+    window.randomizeAll = function() {
+      // Randomize temperatures
+      mockTelemetry.supply_temp = +(85 + Math.random() * 10).toFixed(1);
+      mockTelemetry.return_temp = +(60 + Math.random() * 10).toFixed(1);
+      
+      // Randomize pressures
+      mockTelemetry.supply_pressure = +(58 + Math.random() * 8).toFixed(1);
+      mockTelemetry.return_pressure = +(60 + Math.random() * 8).toFixed(1);
+      
+      // Randomize flow rates
+      mockTelemetry.flow_rate_1 = +(50 + Math.random() * 10).toFixed(1);
+      mockTelemetry.flow_rate_2 = +(48 + Math.random() * 8).toFixed(1);
+      
+      // Randomize tank level
+      mockTelemetry.tank_level = Math.floor(60 + Math.random() * 30);
+      
+      // Randomize valve positions
+      mockTelemetry.valve_1 = Math.floor(50 + Math.random() * 40);
+      mockTelemetry.valve_2 = Math.floor(70 + Math.random() * 25);
+      
+      // Update pump frequencies (for running pumps)
+      if (mockTelemetry.pump_1_status) mockTelemetry.pump_1_freq = +(30 + Math.random() * 8).toFixed(1);
+      if (mockTelemetry.pump_2_status) mockTelemetry.pump_2_freq = +(28 + Math.random() * 8).toFixed(1);
+      if (mockTelemetry.pump_3_status) mockTelemetry.pump_3_freq = +(30 + Math.random() * 8).toFixed(1);
+      if (mockTelemetry.pump_4_status) mockTelemetry.pump_4_freq = +(28 + Math.random() * 8).toFixed(1);
+      
+      // Occasional alarm
+      mockTelemetry.alarm_status = Math.random() > 0.9 ? 1 : 0;
+      
+      // Update UI sliders
+      document.getElementById('supply-temp-value').textContent = mockTelemetry.supply_temp;
+      document.getElementById('return-temp-value').textContent = mockTelemetry.return_temp;
+      document.getElementById('supply-press-value').textContent = mockTelemetry.supply_pressure;
+      document.getElementById('tank-level-value').textContent = mockTelemetry.tank_level;
+      document.getElementById('valve1-value').textContent = mockTelemetry.valve_1;
+      document.getElementById('valve2-value').textContent = mockTelemetry.valve_2;
+      
+      updateData();
+    };
+    
+    // ============================================
+    // Current Data Display
+    // ============================================
+    function updateCurrentDataDisplay() {
+      const container = document.getElementById('current-data');
+      const keys = ['supply_temp', 'return_temp', 'supply_pressure', 'tank_level', 'pump_1_status', 'pump_2_status'];
+      
+      container.innerHTML = keys.map(key => `
+        <div class="data-row">
+          <span class="data-label">${key}</span>
+          <span class="data-value">${mockTelemetry[key]}</span>
+        </div>
+      `).join('');
+    }
+    
+    // ============================================
+    // Time Update
+    // ============================================
+    function updateTime() {
+      document.getElementById('current-time').textContent = 
+        new Date().toLocaleTimeString('zh-CN', { hour12: false });
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+    
+    // ============================================
+    // Handle Window Resize
+    // ============================================
+    window.addEventListener('resize', () => {
+      if (self.onResize) {
+        const container = document.getElementById('tb-widget-container');
+        self.ctx.width = container.clientWidth;
+        self.ctx.height = container.clientHeight;
+        self.onResize();
+      }
+    });
+    
+    // ============================================
+    // Auto Initialize
+    // ============================================
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        initWidget();
+        log('lifecycle', 'Heat Station SCADA Demo loaded');
+      }, 500);
+    });
+  </script>
+</body>
+</html>

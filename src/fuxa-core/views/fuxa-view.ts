@@ -795,26 +795,25 @@ export class FuxaView {
      */
     public runEvents(self: FuxaView, ga: GaugeSettings, ev: any, events: any[]): void {
         for (let i = 0; i < events.length; i++) {
-            let actindex = Object.keys(GaugeEventActionType).indexOf(events[i].action);
-            let eventTypes = Object.values(GaugeEventActionType);
-
-            if (eventTypes.indexOf(GaugeEventActionType.onpage) === actindex) {
+            const action = events[i].action;
+            
+            if (action === GaugeEventActionType.onpage) {
                 self.loadPage(ev, events[i].actparam, events[i].actoptions);
-            } else if (eventTypes.indexOf(GaugeEventActionType.onwindow) === actindex) {
+            } else if (action === GaugeEventActionType.onwindow) {
                 self.onOpenCard(ga.id, ev, events[i].actparam, events[i].actoptions);
-            } else if (eventTypes.indexOf(GaugeEventActionType.onSetValue) === actindex) {
+            } else if (action === GaugeEventActionType.onSetValue) {
                 self.onSetValue(ga, events[i]);
-            } else if (eventTypes.indexOf(GaugeEventActionType.onToggleValue) === actindex) {
+            } else if (action === GaugeEventActionType.onToggleValue) {
                 self.onToggleValue(ga, events[i]);
-            } else if (eventTypes.indexOf(GaugeEventActionType.onSetInput) === actindex) {
+            } else if (action === GaugeEventActionType.onSetInput) {
                 self.onSetInput(ga, events[i]);
-            } else if (eventTypes.indexOf(GaugeEventActionType.onclose) === actindex) {
+            } else if (action === GaugeEventActionType.onclose) {
                 self.onClose(ev);
-            } else if (events[i].action === this.eventRunScript) {
+            } else if (action === GaugeEventActionType.onRunScript || action === this.eventRunScript) {
                 self.onRunScript(events[i]);
-            } else if (events[i].action === this.eventOpenTab) {
+            } else if (action === GaugeEventActionType.onOpenTab || action === this.eventOpenTab) {
                 self.onOpenTab(events[i], events[i].actoptions);
-            } else if (events[i].action === this.eventViewToPanel) {
+            } else if (action === GaugeEventActionType.onViewToPanel || action === this.eventViewToPanel) {
                 self.onSetViewToPanel(events[i]);
             }
         }

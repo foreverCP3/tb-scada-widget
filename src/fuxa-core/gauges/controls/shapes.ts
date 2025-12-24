@@ -14,7 +14,9 @@ import {
     GaugePropertyColor,
     GaugeProperty,
     GaugeActionStatus,
-    GaugeDialogType
+    GaugeDialogType,
+    GaugeEvent,
+    GaugeEventType
 } from '../../models/hmi';
 
 declare var SVG: any;
@@ -68,15 +70,32 @@ export class ShapesComponent extends GaugeBaseComponent {
         return true;
     }
 
+    /**
+     * 获取事件列表 - 用于绑定鼠标事件
+     */
+    static getEvents(property: GaugeProperty, type: GaugeEventType): GaugeEvent[] | null {
+        return GaugeBaseComponent.getEvents(property, type);
+    }
+
     static processValue(ga: GaugeSettings, svgele: any, sig: Variable, gaugeStatus: GaugeStatus) {
         try {
             if (svgele.node) {
-                let value = parseFloat(sig.value);
-                if (Number.isNaN(value)) {
-                    // 可能是布尔值
-                    value = Number(sig.value);
+                let value: number;
+                const sigValue = sig.value as any;
+                // 处理各种类型的值
+                if (typeof sigValue === 'boolean') {
+                    value = sigValue ? 1 : 0;
+                } else if (sigValue === 'true' || sigValue === true) {
+                    value = 1;
+                } else if (sigValue === 'false' || sigValue === false) {
+                    value = 0;
                 } else {
-                    value = parseFloat(value.toFixed(5));
+                    value = parseFloat(sigValue);
+                    if (Number.isNaN(value)) {
+                        value = 0;
+                    } else {
+                        value = parseFloat(value.toFixed(5));
+                    }
                 }
                 if (ga.property) {
                     // 位掩码检查
@@ -170,7 +189,16 @@ export class ShapesComponent extends GaugeBaseComponent {
     }
 
     static startRotateAnimationShape(element: any, type: string, angle: number): GaugeActionStatus {
-        return { type: type, animr: element.animate(3000).ease('-').rotate(angle).loop() } as GaugeActionStatus;
+        // 获取元素的边界框来计算中心点
+        const bbox = element.bbox();
+        const cx = bbox.cx;
+        const cy = bbox.cy;
+        
+        // 使用中心点作为旋转原点
+        return { 
+            type: type, 
+            animr: element.animate(3000).ease('-').rotate(angle, cx, cy).loop() 
+        } as GaugeActionStatus;
     }
 
     static stopAnimationShape(gaugeStatus: GaugeStatus, type: string) {
@@ -199,8 +227,15 @@ export class ShapesComponent extends GaugeBaseComponent {
                 } else if (rotation < act.options.minAngle) {
                     rotation = act.options.minAngle;
                 }
+                
+                // 获取元素的边界框来计算中心点
+                const bbox = element.bbox();
+                const cx = bbox.cx;
+                const cy = bbox.cy;
+                
                 element.animate(200).ease('-').transform({
                     rotate: rotation,
+                    origin: [cx, cy]
                 });
             }
         }

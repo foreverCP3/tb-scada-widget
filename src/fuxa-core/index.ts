@@ -19,5 +19,8 @@ export * from './services';
 // Views
 export * from './views';
 
+// Theme (V9)
+export * from './theme';
+
 // Library utilities
 export * from './lib';

@@ -62,7 +62,7 @@ interface MapGaugesSetting {
  */
 export interface IHmiService {
     variables: { [id: string]: Variable };
-    hmi: Hmi;
+    hmi: Hmi | any;
     onVariableChanged: EventEmitter<Variable>;
     onDaqResult: EventEmitter<any>;
     getGaugeMapped?: (name: string) => any;
@@ -72,10 +72,10 @@ export interface IHmiService {
     emitMappedSignalsGauge(domViewId: string): void;
     getMappedSignalsGauges(domViewId: string, sigid: string): GaugeSettings[];
     getMappedVariables(fulltext: boolean): any;
-    getMappedVariable(sigId: string, fulltext: boolean): Variable;
-    putSignalValue(sigId: string, value: string, fnc?: string): void;
-    getChartSignal(chartId: string): string[];
-    getGraphSignal(graphId: string): string[];
+    getMappedVariable(sigId: string, fulltext: boolean): Variable | null;
+    putSignalValue(sigId: string, value: string, fnc?: string | null): void;
+    getChartSignal(chartId: string): string[] | undefined;
+    getGraphSignal(graphId: string): string[] | undefined;
     getChart(chartId: string): any;
     getGraph(graphId: string): any;
     queryDaqValues(query: DaqQuery): void;
@@ -584,6 +584,7 @@ export class GaugesManager {
                     if (gaugeSettings.type.startsWith(HtmlChartComponent.TypeTag)) {
                         if (!this.hmiService) return null;
                         let sigsId = this.hmiService.getChartSignal(gaugeSettings.property.id);
+                        if (!sigsId) return null;
                         if (sourceDeviceTags) {
                             sigsId = sigsId.map(signalId => {
                                 const tag = DevicesUtils.placeholderToTag(signalId, sourceDeviceTags);
@@ -594,6 +595,7 @@ export class GaugesManager {
                     } else if (gaugeSettings.type.startsWith(HtmlGraphComponent.TypeTag)) {
                         if (!this.hmiService) return null;
                         let sigsId = this.hmiService.getGraphSignal(gaugeSettings.property.id);
+                        if (!sigsId) return null;
                         if (sourceDeviceTags) {
                             sigsId = sigsId.map(signalId => {
                                 const tag = DevicesUtils.placeholderToTag(signalId, sourceDeviceTags);
@@ -781,14 +783,14 @@ export class GaugesManager {
                 if (!Utils.isNullOrUndefined(bitmask)) {
                     const value = GaugeBaseComponent.toggleBitmask(parseFloat(currentValue), bitmask!);
                     this.putSignalValue(sigid, value.toString());
-                } else if (currentValue === 0 || currentValue === '0' || currentValue === false) {
+                } else if (currentValue === 0 || currentValue === '0' || currentValue === false || currentValue === 'false') {
                     this.putSignalValue(sigid, '1');
-                } else if (currentValue === 1 || currentValue === '1' || currentValue === true) {
+                } else if (currentValue === 1 || currentValue === '1' || currentValue === true || currentValue === 'true') {
                     this.putSignalValue(sigid, '0');
-                } else if (currentValue === 'false') {
-                    this.putSignalValue(sigid, 'true');
                 } else {
-                    this.putSignalValue(sigid, String(!currentValue));
+                    // 其他情况，尝试转为数值后切换
+                    const numVal = parseFloat(currentValue);
+                    this.putSignalValue(sigid, numVal ? '0' : '1');
                 }
             }
         }

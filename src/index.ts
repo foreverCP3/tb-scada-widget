@@ -8,6 +8,12 @@
 // Export all FUXA core modules
 export * from './fuxa-core';
 
+// Export ThingsBoard adapter modules
+export * from './tb-adapter';
+
+// Export widgets
+export * from './widgets';
+
 // Re-export commonly used types for convenience
 export {
     // Models
@@ -47,7 +53,31 @@ export {
     HtmlSwitchComponent,
     GaugeSemaphoreComponent,
     
+    // Theme
+    ThemeManager,
+    createThemeManager,
+    
 } from './fuxa-core';
+
+// Re-export TB adapter types
+export {
+    // Data Adapter
+    TBDataAdapter,
+    createDataAdapter,
+    
+    // RPC Adapter
+    TBRpcAdapter,
+    createRpcAdapter,
+    CommonRpcMethods,
+} from './tb-adapter';
+
+// Re-export widgets
+export {
+    // Widget
+    ScadaViewerWidget,
+    createScadaViewerWidget,
+    createWidgetSelf,
+} from './widgets';
 
 /**
  * Version information

@@ -1,6 +1,7 @@
 /**
- * V5: Value 图元 - 数值显示
- * 用于显示变量值和单位
+ * Value 图元 - 数值显示
+ * 与 FUXA 源码保持一致
+ * 原文件: FUXA/client/src/app/gauges/controls/value/value.component.ts
  */
 
 import { GaugeBaseComponent } from '../gauge-base';
@@ -62,13 +63,15 @@ export class ValueComponent extends GaugeBaseComponent {
         return GaugeDialogType.ValueAndUnit;
     }
 
+    /**
+     * 处理数值更新 - 与 FUXA 源码保持一致
+     */
     static processValue(ga: GaugeSettings, svgele: any, sig: Variable, gaugeStatus: GaugeStatus) {
         try {
             if (svgele.node && svgele.node.children && svgele.node.children.length <= 1) {
                 let g = svgele.node.children[0];
                 let val: any = parseFloat(sig.value);
-                
-                switch (typeof sig.value) {
+                switch(typeof(sig.value)){
                     case 'undefined':
                         break;
                     case 'boolean':
@@ -80,10 +83,8 @@ export class ValueComponent extends GaugeBaseComponent {
                     case 'string':
                         val = sig.value;
                         break;
-                    default:
-                        break;
+                    default: break;
                 }
-
                 if (ga.property) {
                     let unit = GaugeBaseComponent.getUnit(ga.property, gaugeStatus);
                     let digit = GaugeBaseComponent.getDigits(ga.property, gaugeStatus);
@@ -91,7 +92,6 @@ export class ValueComponent extends GaugeBaseComponent {
                     if (!Utils.isNullOrUndefined(digit) && Utils.isNumeric(val)) {
                         val = parseFloat(sig.value).toFixed(digit ?? undefined);
                     }
-
                     if (ga.property.variableId === sig.id) {
                         try {
                             g.textContent = val;
@@ -102,8 +102,7 @@ export class ValueComponent extends GaugeBaseComponent {
                             console.error(ga, sig, err);
                         }
                     }
-
-                    // 检查动作
+                    // check actions
                     if (ga.property.actions) {
                         ga.property.actions.forEach((act: GaugeAction) => {
                             if (act.variableId === sig.id) {

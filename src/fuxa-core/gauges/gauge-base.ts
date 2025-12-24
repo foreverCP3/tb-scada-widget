@@ -68,13 +68,13 @@ export class GaugeBaseComponent {
         if (!pro || !pro.events) {
             return null;
         }
-        let idxtype = Object.values(GaugeEventType).indexOf(type);
         pro.events.forEach(ev => {
-            if (idxtype < 0 || Object.keys(GaugeEventType).indexOf(ev.type) === idxtype) {
+            // 如果 type 为 null/undefined，返回所有事件；否则只返回匹配类型的事件
+            if (!type || ev.type === type) {
                 res.push(ev);
             }
         });
-        return res;
+        return res.length > 0 ? res : null;
     }
 
     /**
@@ -102,7 +102,8 @@ export class GaugeBaseComponent {
                 if (range['fractionDigitsId'] && !Utils.isNullOrUndefined((gaugeStatus.variablesValue as any)[range['fractionDigitsId']])) {
                     range['fractionDigits'] = (gaugeStatus.variablesValue as any)[range['fractionDigitsId']];
                 }
-                if (range['fractionDigits']) {
+                // 修复：使用 isNullOrUndefined 而不是 truthy 检查，这样 0 也能正确返回
+                if (!Utils.isNullOrUndefined(range['fractionDigits'])) {
                     return range['fractionDigits'];
                 }
             }
@@ -300,8 +301,14 @@ export class GaugeBaseComponent {
     static walkTreeNodeToSetAttribute(node: any, attributeName: string, attributeValue: string | number): void {
         node?.setAttribute(attributeName, attributeValue);
         Utils.walkTree(node, (element: any) => {
+            // 设置所有子元素的属性（包括 circle, rect, path 等 SVG 形状）
             if (element.id?.startsWith('SHE') || element.id?.startsWith('svg_')) {
                 element.setAttribute(attributeName, attributeValue);
+            } else if (element.tagName && ['circle', 'rect', 'ellipse', 'path', 'polygon', 'polyline', 'line'].includes(element.tagName.toLowerCase())) {
+                // 如果是基本 SVG 形状且有对应属性，也设置它
+                if (element.hasAttribute(attributeName)) {
+                    element.setAttribute(attributeName, attributeValue);
+                }
             }
         });
     }

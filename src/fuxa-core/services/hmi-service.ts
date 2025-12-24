@@ -221,7 +221,7 @@ export class HmiService {
     private viewsTagsSubscription: string[] = [];
 
     // Function bound by GaugesManager
-    getGaugeMapped: ((gaugeName: string) => void) | null = null;
+    getGaugeMapped: ((gaugeName: string) => any) | undefined = undefined;
 
     constructor() {
         this.addFunctionType = Utils.getEnumKey(GaugeEventSetValueType, GaugeEventSetValueType.add) || 'add';
@@ -552,10 +552,32 @@ export class HmiService {
     //#region DAQ functions served from project service
 
     /**
-     * Get DAQ values
+     * Query DAQ values - sends request and emits result via onDaqResult
      */
-    getDaqValues(query: DaqQuery): Promise<DaqResult> | null {
-        return this.projectService ? this.projectService.getDaqValues(query) : null;
+    queryDaqValues(query: DaqQuery): void {
+        if (this.projectService) {
+            this.projectService.getDaqValues(query).then((result: DaqResult) => {
+                this.onDaqResult.emit(result);
+            }).catch((err: any) => {
+                console.error('queryDaqValues error:', err);
+            });
+        }
+    }
+
+    /**
+     * Get DAQ values - returns promise
+     */
+    getDaqValues(query: DaqQuery): { subscribe: (success: (result: any) => void, error: (err: any) => void) => void } {
+        const self = this;
+        return {
+            subscribe: (success: (result: any) => void, error: (err: any) => void) => {
+                if (self.projectService) {
+                    self.projectService.getDaqValues(query).then(success).catch(error);
+                } else {
+                    error(new Error('Project service not initialized'));
+                }
+            }
+        };
     }
 
     //#endregion

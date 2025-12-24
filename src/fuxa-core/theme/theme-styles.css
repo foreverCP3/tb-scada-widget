@@ -1,0 +1,825 @@
+/**
+ * V9: Theme Styles - ThingsBoard Theme Integration
+ * 
+ * CSS variables and styles for SCADA widgets
+ * Compatible with ThingsBoard's theming system
+ */
+
+/* ============================================
+   CSS Custom Properties (Variables)
+   ============================================ */
+
+:root {
+    /* ThingsBoard Primary Colors */
+    --tb-primary: #305680;
+    --tb-primary-light: #4a7cb0;
+    --tb-primary-dark: #1e3a5f;
+    
+    /* ThingsBoard Accent Colors */
+    --tb-accent: #d97f0d;
+    --tb-accent-light: #f5a623;
+    
+    /* Status Colors */
+    --tb-success: #4caf50;
+    --tb-warning: #ff9800;
+    --tb-error: #f44336;
+    --tb-info: #2196f3;
+    
+    /* Typography */
+    --tb-font-family: 'Roboto', 'Helvetica Neue', sans-serif;
+    --tb-font-size: 14px;
+    --tb-font-size-sm: 12px;
+    --tb-font-size-lg: 16px;
+    --tb-font-size-xl: 20px;
+    
+    /* Spacing */
+    --tb-spacing-xs: 4px;
+    --tb-spacing-sm: 8px;
+    --tb-spacing-md: 16px;
+    --tb-spacing-lg: 24px;
+    --tb-spacing-xl: 32px;
+    
+    /* Border Radius */
+    --tb-border-radius: 4px;
+    --tb-border-radius-lg: 8px;
+    
+    /* Transitions */
+    --tb-transition-fast: 0.15s ease;
+    --tb-transition-normal: 0.3s ease;
+    --tb-transition-slow: 0.5s ease;
+    
+    /* Z-Index Layers */
+    --tb-z-dropdown: 100;
+    --tb-z-modal: 200;
+    --tb-z-tooltip: 300;
+    --tb-z-notification: 400;
+}
+
+/* ============================================
+   Light Theme
+   ============================================ */
+
+.theme-light,
+[data-theme="light"] {
+    /* Background Colors */
+    --tb-background: #fafafa;
+    --tb-surface: #ffffff;
+    --tb-surface-light: #f5f5f5;
+    
+    /* Text Colors */
+    --tb-text-primary: rgba(0, 0, 0, 0.87);
+    --tb-text-secondary: rgba(0, 0, 0, 0.6);
+    --tb-text-disabled: rgba(0, 0, 0, 0.38);
+    
+    /* Border and Divider */
+    --tb-divider: rgba(0, 0, 0, 0.12);
+    --tb-border: rgba(0, 0, 0, 0.23);
+    
+    /* Shadow */
+    --tb-shadow: rgba(0, 0, 0, 0.2);
+    --tb-shadow-color: 0, 0, 0;
+    
+    /* SCADA Specific */
+    --scada-background: #e8e8e8;
+    --scada-grid-line: #cccccc;
+    --scada-pipe: #607d8b;
+    --scada-active: #4caf50;
+    --scada-inactive: #9e9e9e;
+}
+
+/* ============================================
+   Dark Theme
+   ============================================ */
+
+.theme-dark,
+[data-theme="dark"] {
+    /* Background Colors */
+    --tb-background: #2a323d;
+    --tb-surface: #323c49;
+    --tb-surface-light: #3b4654;
+    
+    /* Text Colors */
+    --tb-text-primary: #ffffff;
+    --tb-text-secondary: rgba(255, 255, 255, 0.7);
+    --tb-text-disabled: rgba(255, 255, 255, 0.5);
+    
+    /* Border and Divider */
+    --tb-divider: rgba(255, 255, 255, 0.12);
+    --tb-border: rgba(255, 255, 255, 0.23);
+    
+    /* Shadow */
+    --tb-shadow: rgba(0, 0, 0, 0.5);
+    --tb-shadow-color: 0, 0, 0;
+    
+    /* SCADA Specific */
+    --scada-background: #1e252e;
+    --scada-grid-line: #3b4654;
+    --scada-pipe: #4a7cb0;
+    --scada-active: #4caf50;
+    --scada-inactive: #616161;
+}
+
+/* ============================================
+   Base Widget Styles
+   ============================================ */
+
+.tb-scada-widget {
+    font-family: var(--tb-font-family);
+    font-size: var(--tb-font-size);
+    color: var(--tb-text-primary);
+    background-color: var(--tb-background);
+    box-sizing: border-box;
+    line-height: 1.5;
+}
+
+.tb-scada-widget *,
+.tb-scada-widget *::before,
+.tb-scada-widget *::after {
+    box-sizing: inherit;
+}
+
+/* ============================================
+   SCADA View Container
+   ============================================ */
+
+.scada-view-container {
+    width: 100%;
+    height: 100%;
+    background-color: var(--scada-background);
+    overflow: hidden;
+    position: relative;
+}
+
+.scada-view-container svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* Grid overlay for editor */
+.scada-grid-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    background-image: 
+        linear-gradient(var(--scada-grid-line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--scada-grid-line) 1px, transparent 1px);
+    background-size: 20px 20px;
+    opacity: 0.3;
+}
+
+/* ============================================
+   Cards and Panels
+   ============================================ */
+
+.scada-card {
+    background-color: var(--tb-surface);
+    border-radius: var(--tb-border-radius);
+    box-shadow: 
+        0 2px 1px -1px rgba(var(--tb-shadow-color), 0.2),
+        0 1px 1px 0 rgba(var(--tb-shadow-color), 0.14),
+        0 1px 3px 0 rgba(var(--tb-shadow-color), 0.12);
+}
+
+.scada-card-header {
+    padding: var(--tb-spacing-md);
+    border-bottom: 1px solid var(--tb-divider);
+    display: flex;
+    align-items: center;
+    gap: var(--tb-spacing-sm);
+}
+
+.scada-card-title {
+    font-size: var(--tb-font-size);
+    font-weight: 500;
+    color: var(--tb-text-primary);
+    margin: 0;
+}
+
+.scada-card-content {
+    padding: var(--tb-spacing-md);
+}
+
+.scada-panel {
+    background-color: var(--tb-surface-light);
+    border: 1px solid var(--tb-divider);
+    border-radius: var(--tb-border-radius);
+    padding: var(--tb-spacing-md);
+}
+
+/* ============================================
+   Buttons
+   ============================================ */
+
+.scada-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--tb-spacing-xs);
+    padding: 8px 16px;
+    background-color: var(--tb-primary);
+    color: #ffffff;
+    border: none;
+    border-radius: var(--tb-border-radius);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: background-color var(--tb-transition-fast),
+                box-shadow var(--tb-transition-fast);
+    box-shadow: 
+        0 2px 1px -1px rgba(var(--tb-shadow-color), 0.2),
+        0 1px 1px 0 rgba(var(--tb-shadow-color), 0.14),
+        0 1px 3px 0 rgba(var(--tb-shadow-color), 0.12);
+}
+
+.scada-btn:hover {
+    background-color: var(--tb-primary-light);
+    box-shadow: 
+        0 3px 1px -2px rgba(var(--tb-shadow-color), 0.2),
+        0 2px 2px 0 rgba(var(--tb-shadow-color), 0.14),
+        0 1px 5px 0 rgba(var(--tb-shadow-color), 0.12);
+}
+
+.scada-btn:active {
+    background-color: var(--tb-primary-dark);
+}
+
+.scada-btn:disabled {
+    background-color: var(--tb-text-disabled);
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.scada-btn.accent {
+    background-color: var(--tb-accent);
+}
+
+.scada-btn.accent:hover {
+    background-color: var(--tb-accent-light);
+}
+
+.scada-btn.success {
+    background-color: var(--tb-success);
+}
+
+.scada-btn.warning {
+    background-color: var(--tb-warning);
+}
+
+.scada-btn.error {
+    background-color: var(--tb-error);
+}
+
+.scada-btn.flat {
+    background-color: transparent;
+    color: var(--tb-primary);
+    box-shadow: none;
+}
+
+.scada-btn.flat:hover {
+    background-color: rgba(48, 86, 128, 0.1);
+}
+
+.scada-btn-icon {
+    padding: 8px;
+    min-width: 36px;
+    min-height: 36px;
+    border-radius: 50%;
+}
+
+/* ============================================
+   Form Controls
+   ============================================ */
+
+.scada-form-group {
+    margin-bottom: var(--tb-spacing-md);
+}
+
+.scada-label {
+    display: block;
+    font-size: var(--tb-font-size-sm);
+    font-weight: 500;
+    color: var(--tb-text-secondary);
+    margin-bottom: var(--tb-spacing-xs);
+}
+
+.scada-input {
+    width: 100%;
+    padding: 10px 12px;
+    background-color: var(--tb-surface);
+    border: 1px solid var(--tb-border);
+    border-radius: var(--tb-border-radius);
+    color: var(--tb-text-primary);
+    font-family: inherit;
+    font-size: var(--tb-font-size);
+    transition: border-color var(--tb-transition-fast),
+                box-shadow var(--tb-transition-fast);
+}
+
+.scada-input:focus {
+    outline: none;
+    border-color: var(--tb-primary);
+    box-shadow: 0 0 0 2px rgba(48, 86, 128, 0.2);
+}
+
+.scada-input::placeholder {
+    color: var(--tb-text-disabled);
+}
+
+.scada-input:disabled {
+    background-color: var(--tb-surface-light);
+    color: var(--tb-text-disabled);
+    cursor: not-allowed;
+}
+
+.scada-select {
+    width: 100%;
+    padding: 10px 12px;
+    background-color: var(--tb-surface);
+    border: 1px solid var(--tb-border);
+    border-radius: var(--tb-border-radius);
+    color: var(--tb-text-primary);
+    font-family: inherit;
+    font-size: var(--tb-font-size);
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+}
+
+/* Select option styling (limited browser support) */
+.scada-select option,
+select option {
+    background-color: var(--tb-surface);
+    color: var(--tb-text-primary);
+    padding: 8px 12px;
+}
+
+/* Dark theme specific select styling */
+.theme-dark select,
+[data-theme="dark"] select {
+    background-color: var(--tb-surface);
+    color: var(--tb-text-primary);
+    border-color: var(--tb-border);
+}
+
+.theme-dark select option,
+[data-theme="dark"] select option {
+    background-color: #323c49;
+    color: #ffffff;
+}
+
+.theme-dark select option:hover,
+[data-theme="dark"] select option:hover,
+.theme-dark select option:checked,
+[data-theme="dark"] select option:checked {
+    background-color: #4a7cb0;
+    color: #ffffff;
+}
+
+.scada-textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 10px 12px;
+    background-color: var(--tb-surface);
+    border: 1px solid var(--tb-border);
+    border-radius: var(--tb-border-radius);
+    color: var(--tb-text-primary);
+    font-family: 'Roboto Mono', monospace;
+    font-size: var(--tb-font-size-sm);
+    resize: vertical;
+    line-height: 1.6;
+}
+
+.scada-textarea:focus {
+    outline: none;
+    border-color: var(--tb-primary);
+}
+
+/* Checkbox and Radio */
+.scada-checkbox,
+.scada-radio {
+    display: flex;
+    align-items: center;
+    gap: var(--tb-spacing-sm);
+    cursor: pointer;
+}
+
+.scada-checkbox input,
+.scada-radio input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--tb-primary);
+}
+
+/* Toggle Switch */
+.scada-toggle {
+    position: relative;
+    width: 36px;
+    height: 20px;
+}
+
+.scada-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.scada-toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--tb-text-disabled);
+    border-radius: 20px;
+    transition: background-color var(--tb-transition-fast);
+}
+
+.scada-toggle-slider::before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    border-radius: 50%;
+    transition: transform var(--tb-transition-fast);
+}
+
+.scada-toggle input:checked + .scada-toggle-slider {
+    background-color: var(--tb-accent);
+}
+
+.scada-toggle input:checked + .scada-toggle-slider::before {
+    transform: translateX(16px);
+}
+
+/* ============================================
+   Status Indicators
+   ============================================ */
+
+.status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--tb-text-disabled);
+}
+
+.status-dot.success { background-color: var(--tb-success); }
+.status-dot.warning { background-color: var(--tb-warning); }
+.status-dot.error { background-color: var(--tb-error); }
+.status-dot.info { background-color: var(--tb-info); }
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--tb-spacing-xs);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: var(--tb-font-size-sm);
+    font-weight: 500;
+    background-color: var(--tb-surface-light);
+    color: var(--tb-text-secondary);
+}
+
+.status-badge.success {
+    background-color: rgba(76, 175, 80, 0.15);
+    color: var(--tb-success);
+}
+
+.status-badge.warning {
+    background-color: rgba(255, 152, 0, 0.15);
+    color: var(--tb-warning);
+}
+
+.status-badge.error {
+    background-color: rgba(244, 67, 54, 0.15);
+    color: var(--tb-error);
+}
+
+.status-badge.info {
+    background-color: rgba(33, 150, 243, 0.15);
+    color: var(--tb-info);
+}
+
+/* ============================================
+   Tooltips
+   ============================================ */
+
+.scada-tooltip {
+    position: absolute;
+    padding: 6px 10px;
+    background-color: var(--tb-surface);
+    color: var(--tb-text-primary);
+    border-radius: var(--tb-border-radius);
+    font-size: var(--tb-font-size-sm);
+    box-shadow: 0 2px 8px var(--tb-shadow);
+    z-index: var(--tb-z-tooltip);
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.scada-tooltip::before {
+    content: '';
+    position: absolute;
+    border: 6px solid transparent;
+}
+
+.scada-tooltip.top::before {
+    bottom: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-top-color: var(--tb-surface);
+}
+
+.scada-tooltip.bottom::before {
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-bottom-color: var(--tb-surface);
+}
+
+/* ============================================
+   Loading States
+   ============================================ */
+
+.scada-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    gap: var(--tb-spacing-md);
+}
+
+.scada-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--tb-divider);
+    border-top-color: var(--tb-primary);
+    border-radius: 50%;
+    animation: scada-spin 1s linear infinite;
+}
+
+.scada-spinner.small {
+    width: 20px;
+    height: 20px;
+    border-width: 2px;
+}
+
+.scada-spinner.large {
+    width: 60px;
+    height: 60px;
+    border-width: 4px;
+}
+
+@keyframes scada-spin {
+    to { transform: rotate(360deg); }
+}
+
+.scada-loading-text {
+    font-size: var(--tb-font-size-sm);
+    color: var(--tb-text-secondary);
+}
+
+/* ============================================
+   Empty States
+   ============================================ */
+
+.scada-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--tb-spacing-xl);
+    text-align: center;
+    color: var(--tb-text-secondary);
+}
+
+.scada-empty-state-icon {
+    font-size: 48px;
+    margin-bottom: var(--tb-spacing-md);
+    opacity: 0.5;
+}
+
+.scada-empty-state-title {
+    font-size: var(--tb-font-size-lg);
+    font-weight: 500;
+    margin-bottom: var(--tb-spacing-sm);
+    color: var(--tb-text-primary);
+}
+
+.scada-empty-state-description {
+    font-size: var(--tb-font-size-sm);
+    max-width: 300px;
+}
+
+/* ============================================
+   Dividers
+   ============================================ */
+
+.scada-divider {
+    height: 1px;
+    background-color: var(--tb-divider);
+    margin: var(--tb-spacing-md) 0;
+}
+
+.scada-divider.vertical {
+    width: 1px;
+    height: auto;
+    margin: 0 var(--tb-spacing-md);
+}
+
+/* ============================================
+   Scrollbars
+   ============================================ */
+
+.theme-dark ::-webkit-scrollbar,
+[data-theme="dark"] ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.theme-dark ::-webkit-scrollbar-track,
+[data-theme="dark"] ::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.theme-dark ::-webkit-scrollbar-thumb,
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+.theme-dark ::-webkit-scrollbar-thumb:hover,
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.theme-light ::-webkit-scrollbar,
+[data-theme="light"] ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.theme-light ::-webkit-scrollbar-track,
+[data-theme="light"] ::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.theme-light ::-webkit-scrollbar-thumb,
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+}
+
+.theme-light ::-webkit-scrollbar-thumb:hover,
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+
+/* Fade in */
+.scada-fade-in {
+    animation: scada-fade-in var(--tb-transition-normal);
+}
+
+@keyframes scada-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Slide in */
+.scada-slide-in-up {
+    animation: scada-slide-in-up var(--tb-transition-normal);
+}
+
+@keyframes scada-slide-in-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Pulse */
+.scada-pulse {
+    animation: scada-pulse 2s infinite;
+}
+
+@keyframes scada-pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+/* Blink */
+.scada-blink {
+    animation: scada-blink 1s infinite;
+}
+
+@keyframes scada-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+/* ============================================
+   Utility Classes
+   ============================================ */
+
+/* Text Colors */
+.text-primary { color: var(--tb-text-primary); }
+.text-secondary { color: var(--tb-text-secondary); }
+.text-disabled { color: var(--tb-text-disabled); }
+.text-success { color: var(--tb-success); }
+.text-warning { color: var(--tb-warning); }
+.text-error { color: var(--tb-error); }
+.text-info { color: var(--tb-info); }
+
+/* Background Colors */
+.bg-primary { background-color: var(--tb-primary); }
+.bg-surface { background-color: var(--tb-surface); }
+.bg-success { background-color: var(--tb-success); }
+.bg-warning { background-color: var(--tb-warning); }
+.bg-error { background-color: var(--tb-error); }
+.bg-info { background-color: var(--tb-info); }
+
+/* Spacing */
+.p-0 { padding: 0; }
+.p-xs { padding: var(--tb-spacing-xs); }
+.p-sm { padding: var(--tb-spacing-sm); }
+.p-md { padding: var(--tb-spacing-md); }
+.p-lg { padding: var(--tb-spacing-lg); }
+
+.m-0 { margin: 0; }
+.m-xs { margin: var(--tb-spacing-xs); }
+.m-sm { margin: var(--tb-spacing-sm); }
+.m-md { margin: var(--tb-spacing-md); }
+.m-lg { margin: var(--tb-spacing-lg); }
+
+/* Flexbox */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.flex-row { flex-direction: row; }
+.flex-wrap { flex-wrap: wrap; }
+.flex-1 { flex: 1; }
+.items-center { align-items: center; }
+.items-start { align-items: flex-start; }
+.items-end { align-items: flex-end; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.justify-end { justify-content: flex-end; }
+.gap-xs { gap: var(--tb-spacing-xs); }
+.gap-sm { gap: var(--tb-spacing-sm); }
+.gap-md { gap: var(--tb-spacing-md); }
+
+/* Text */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+.font-bold { font-weight: 700; }
+.font-medium { font-weight: 500; }
+.font-normal { font-weight: 400; }
+.text-sm { font-size: var(--tb-font-size-sm); }
+.text-lg { font-size: var(--tb-font-size-lg); }
+.text-xl { font-size: var(--tb-font-size-xl); }
+
+/* Display */
+.hidden { display: none; }
+.block { display: block; }
+.inline-block { display: inline-block; }
+
+/* Overflow */
+.overflow-hidden { overflow: hidden; }
+.overflow-auto { overflow: auto; }
+
+/* Width/Height */
+.w-full { width: 100%; }
+.h-full { height: 100%; }
+
+/* Position */
+.relative { position: relative; }
+.absolute { position: absolute; }
+
+/* Cursor */
+.cursor-pointer { cursor: pointer; }
+.cursor-default { cursor: default; }

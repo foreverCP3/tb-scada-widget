@@ -3,1438 +3,1355 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SCADA Widget - ThingsBoard Style Simulator</title>
+  <title>换热站监控系统 - ThingsBoard Widget 模拟环境</title>
   
-  <!-- Material Design Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <!-- Roboto Font (TB uses this) -->
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <!-- SVG.js (FUXA dependency) -->
   <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.2.4/dist/svg.min.js"></script>
   
   <style>
-    /* ThingsBoard-style CSS Variables */
     :root {
-      /* TB Dark Theme Colors */
-      --tb-primary: #305680;
-      --tb-primary-light: #4a7cb0;
-      --tb-accent: #d97f0d;
-      --tb-background: #2a323d;
-      --tb-surface: #323c49;
-      --tb-surface-light: #3b4654;
+      --tb-background: #0a1929;
+      --tb-surface: #0d2137;
+      --tb-border: #1e4976;
       --tb-text-primary: #ffffff;
-      --tb-text-secondary: rgba(255, 255, 255, 0.7);
-      --tb-text-disabled: rgba(255, 255, 255, 0.5);
-      --tb-divider: rgba(255, 255, 255, 0.12);
-      --tb-success: #4caf50;
-      --tb-warning: #ff9800;
-      --tb-error: #f44336;
-      --tb-info: #2196f3;
-      
-      /* TB Light Theme Colors (for reference) */
-      --tb-light-primary: #305680;
-      --tb-light-background: #fafafa;
-      --tb-light-surface: #ffffff;
-      --tb-light-text-primary: rgba(0, 0, 0, 0.87);
-      
-      /* Shadows */
-      --tb-shadow-1: 0 2px 1px -1px rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 1px 3px 0 rgba(0,0,0,.12);
-      --tb-shadow-2: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
-      --tb-shadow-4: 0 2px 4px -1px rgba(0,0,0,.2), 0 4px 5px 0 rgba(0,0,0,.14), 0 1px 10px 0 rgba(0,0,0,.12);
+      --tb-text-secondary: #8899a6;
+      --scada-cyan: #00d4ff;
+      --scada-pink: #ff4081;
     }
     
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
-    body { 
+    body {
       font-family: 'Roboto', sans-serif;
-      background: var(--tb-background); 
+      background: var(--tb-background);
       color: var(--tb-text-primary);
-      font-size: 14px;
-      line-height: 1.5;
-    }
-    
-    /* Layout */
-    .app-container { display: flex; height: 100vh; }
-    
-    /* Sidebar - TB Style */
-    .sidebar { 
-      width: 340px; 
-      background: var(--tb-surface); 
-      display: flex; 
-      flex-direction: column; 
-      border-right: 1px solid var(--tb-divider);
-      box-shadow: var(--tb-shadow-2);
-    }
-    
-    /* Toolbar Header */
-    .sidebar-header {
-      height: 64px;
-      padding: 0 16px;
+      height: 100vh;
       display: flex;
-      align-items: center;
-      background: var(--tb-primary);
-      color: white;
-    }
-    .sidebar-header h2 {
-      font-size: 18px;
-      font-weight: 500;
+      flex-direction: column;
+      overflow: hidden;
     }
     
-    /* Tab Navigation - Material Style */
-    .tabs {
-      display: flex;
-      background: var(--tb-surface-light);
-      border-bottom: 1px solid var(--tb-divider);
-    }
-    .tab {
-      flex: 1;
-      padding: 14px 16px;
-      font-size: 13px;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--tb-text-secondary);
-      cursor: pointer;
-      text-align: center;
-      border-bottom: 2px solid transparent;
-      transition: all 0.2s ease;
-    }
-    .tab:hover { 
-      color: var(--tb-text-primary);
-      background: rgba(255,255,255,0.05);
-    }
-    .tab.active { 
-      color: var(--tb-accent); 
-      border-bottom-color: var(--tb-accent);
-    }
-    .tab-content { 
-      display: none; 
-      flex: 1; 
-      overflow-y: auto;
-      padding: 16px;
-    }
-    .tab-content.active { display: block; }
-    
-    /* Panel Cards - Material Style */
-    .card {
-      background: var(--tb-surface-light);
-      border-radius: 4px;
-      margin-bottom: 16px;
-      box-shadow: var(--tb-shadow-1);
-    }
-    .card-header {
-      padding: 16px;
-      border-bottom: 1px solid var(--tb-divider);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .card-header .material-icons {
-      font-size: 20px;
-      color: var(--tb-accent);
-    }
-    .card-title {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--tb-text-primary);
-    }
-    .card-content {
-      padding: 16px;
-    }
-    
-    /* Data Items */
-    .data-item { 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center;
-      padding: 10px 12px; 
+    .tb-dashboard-header {
+      height: 50px;
       background: var(--tb-surface);
-      border-radius: 4px;
-      margin-bottom: 8px;
-      transition: background 0.2s;
-    }
-    .data-item:hover {
-      background: rgba(255,255,255,0.05);
-    }
-    .data-key { 
-      color: var(--tb-text-secondary); 
-      font-size: 13px;
+      border-bottom: 1px solid var(--tb-border);
       display: flex;
       align-items: center;
-      gap: 8px;
-    }
-    .data-type { 
-      font-size: 10px; 
-      padding: 2px 6px;
-      background: var(--tb-primary);
-      color: white;
-      border-radius: 10px;
-      text-transform: uppercase;
-    }
-    .data-value { 
-      color: var(--tb-accent); 
-      font-weight: 500; 
-      font-family: 'Roboto Mono', monospace;
-      font-size: 14px;
+      padding: 0 20px;
+      flex-shrink: 0;
     }
     
-    /* Form Controls - Material Style */
-    .form-group { margin-bottom: 16px; }
-    .form-label { 
-      display: block;
-      font-size: 12px; 
-      color: var(--tb-text-secondary); 
-      margin-bottom: 6px;
-      font-weight: 500;
-    }
-    .form-input { 
-      width: 100%; 
-      padding: 10px 12px; 
-      background: var(--tb-surface); 
-      border: 1px solid var(--tb-divider); 
-      border-radius: 4px; 
-      color: var(--tb-text-primary);
-      font-size: 14px;
-      font-family: inherit;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .form-input:focus { 
-      border-color: var(--tb-primary-light); 
-      outline: none;
-      box-shadow: 0 0 0 2px rgba(48, 86, 128, 0.2);
-    }
-    .form-textarea {
-      width: 100%;
-      min-height: 120px;
-      padding: 10px 12px;
-      background: var(--tb-surface);
-      border: 1px solid var(--tb-divider);
-      border-radius: 4px;
-      color: var(--tb-text-primary);
-      font-size: 12px;
-      font-family: 'Roboto Mono', monospace;
-      resize: vertical;
-      line-height: 1.6;
-    }
-    .form-textarea:focus {
-      border-color: var(--tb-primary-light);
-      outline: none;
-    }
-    
-    /* Buttons - Material Style */
-    .btn { 
-      display: inline-flex;
+    .tb-logo {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #305680 0%, #4a7ab0 100%);
+      border-radius: 6px;
+      display: flex;
       align-items: center;
       justify-content: center;
+      margin-right: 12px;
+    }
+    
+    .tb-logo .material-icons { color: white; font-size: 18px; }
+    .tb-title { font-size: 16px; font-weight: 500; color: var(--scada-cyan); }
+    
+    .tb-header-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .tb-time {
+      font-family: 'Roboto Mono', monospace;
+      font-size: 14px;
+      color: var(--scada-cyan);
+    }
+    
+    .tb-date { font-size: 12px; color: var(--tb-text-secondary); }
+    
+    .tb-dashboard-content {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+    
+    /* 左侧面板 - 图表和数据 */
+    .left-panel {
+      width: 280px;
+      background: var(--tb-surface);
+      border-right: 1px solid var(--tb-border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    .panel-section {
+      border-bottom: 1px solid var(--tb-border);
+    }
+    
+    .panel-section-header {
+      padding: 8px 12px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--scada-cyan);
+      background: rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
       gap: 6px;
-      padding: 8px 16px; 
-      background: var(--tb-primary); 
-      border: none; 
-      border-radius: 4px; 
-      cursor: pointer;
+      border-left: 3px solid var(--scada-cyan);
+    }
+    
+    .panel-section-header .material-icons { font-size: 14px; }
+    
+    .panel-section-content {
+      padding: 8px;
+      background: rgba(0,0,0,0.1);
+    }
+    
+    /* 主视图区域 */
+    .main-view {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    .tb-widget-frame {
+      flex: 1;
+      margin: 8px;
+      background: var(--tb-surface);
+      border: 1px solid var(--tb-border);
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    .tb-widget-header {
+      height: 36px;
+      padding: 0 12px;
+      background: rgba(0,0,0,0.2);
+      border-bottom: 1px solid var(--tb-border);
+      display: flex;
+      align-items: center;
+    }
+    
+    .tb-widget-title {
       font-size: 13px;
       font-weight: 500;
-      font-family: inherit;
-      color: white;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      transition: all 0.2s;
-      box-shadow: var(--tb-shadow-1);
-    }
-    .btn:hover { 
-      background: var(--tb-primary-light);
-      box-shadow: var(--tb-shadow-2);
-    }
-    .btn:active {
-      box-shadow: var(--tb-shadow-1);
-    }
-    .btn .material-icons { font-size: 18px; }
-    
-    .btn-flat {
-      background: transparent;
-      box-shadow: none;
-      color: var(--tb-primary-light);
-    }
-    .btn-flat:hover {
-      background: rgba(48, 86, 128, 0.1);
-      box-shadow: none;
+      color: var(--scada-cyan);
     }
     
-    .btn-accent { background: var(--tb-accent); }
-    .btn-accent:hover { background: #e8910f; }
+    .tb-widget-content {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
     
-    .btn-success { background: var(--tb-success); }
-    .btn-success:hover { background: #43a047; }
-    
-    .btn-error { background: var(--tb-error); }
-    .btn-error:hover { background: #d32f2f; }
-    
-    .btn-group {
+    /* 右侧面板 - 控制 */
+    .right-panel {
+      width: 240px;
+      background: var(--tb-surface);
+      border-left: 1px solid var(--tb-border);
       display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    
-    /* Main Content */
-    .main-content { 
-      flex: 1; 
-      padding: 24px; 
-      display: flex; 
       flex-direction: column;
-      background: var(--tb-background);
+      overflow-y: auto;
     }
     
-    /* Widget Preview Header */
-    .preview-header { 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      margin-bottom: 16px; 
+    .control-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
     }
-    .preview-title { 
-      font-size: 20px;
-      font-weight: 500;
+    
+    .control-btn {
+      padding: 6px;
+      border: 1px solid var(--tb-border);
+      background: rgba(0,0,0,0.3);
       color: var(--tb-text-primary);
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      transition: all 0.2s;
     }
     
-    /* Status Badge */
-    .status-badge { 
+    .control-btn:hover {
+      background: rgba(0, 212, 255, 0.1);
+      border-color: var(--scada-cyan);
+    }
+    
+    .control-btn.active {
+      background: rgba(0, 212, 255, 0.2);
+      border-color: var(--scada-cyan);
+      color: var(--scada-cyan);
+    }
+    
+    .control-btn .material-icons { font-size: 16px; }
+    
+    .slider-control { margin-bottom: 8px; }
+    
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--tb-text-secondary);
+      margin-bottom: 4px;
+    }
+    
+    .slider-value {
+      color: var(--scada-cyan);
+      font-family: 'Roboto Mono', monospace;
+    }
+    
+    .slider-input {
+      width: 100%;
+      height: 3px;
+      -webkit-appearance: none;
+      background: var(--tb-border);
+      border-radius: 2px;
+      outline: none;
+    }
+    
+    .slider-input::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--scada-cyan);
+      cursor: pointer;
+    }
+    
+    .status-indicator {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      font-size: 12px;
+      gap: 4px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 9px;
       font-weight: 500;
-      padding: 6px 12px; 
-      border-radius: 16px; 
-      background: var(--tb-surface);
-      text-transform: uppercase;
     }
-    .status-badge .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--tb-text-disabled);
-    }
-    .status-badge.running .dot { background: var(--tb-success); }
-    .status-badge.stopped .dot { background: var(--tb-error); }
     
-    /* Widget Container - TB Dashboard Style */
-    #widget-container { 
-      flex: 1;
-      background: var(--tb-surface); 
+    .status-indicator.running {
+      background: rgba(76, 175, 80, 0.2);
+      color: #4caf50;
+    }
+    
+    .status-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+      animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    
+    /* 数据卡片 */
+    .data-card {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--tb-border);
       border-radius: 4px;
-      box-shadow: var(--tb-shadow-2);
+      padding: 8px;
+      margin-bottom: 6px;
+    }
+    
+    .data-card-title {
+      font-size: 10px;
+      color: var(--tb-text-secondary);
+      margin-bottom: 4px;
+    }
+    
+    .data-card-value {
+      font-size: 18px;
+      font-weight: 500;
+      font-family: 'Roboto Mono', monospace;
+      color: var(--scada-cyan);
+    }
+    
+    .data-card-unit {
+      font-size: 11px;
+      color: var(--tb-text-secondary);
+      margin-left: 2px;
+    }
+    
+    /* 能耗条形图 */
+    .bar-chart-container {
+      padding: 4px 0;
+    }
+    
+    .bar-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    
+    .bar-label {
+      width: 50px;
+      font-size: 10px;
+      color: var(--tb-text-secondary);
+    }
+    
+    .bar-track {
+      flex: 1;
+      height: 14px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 2px;
       overflow: hidden;
       position: relative;
-      min-height: 400px;
     }
     
-    /* Log Panel */
-    .log-panel {
-      height: 160px;
-      background: #1e252e;
-      border-radius: 4px;
-      margin-top: 16px;
-      overflow-y: auto;
-      font-family: 'Roboto Mono', monospace;
-      font-size: 11px;
-    }
-    .log-header {
-      position: sticky;
-      top: 0;
-      background: #1e252e;
-      padding: 8px 12px;
-      border-bottom: 1px solid var(--tb-divider);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .log-header-title {
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--tb-text-secondary);
-    }
-    .log-content {
-      padding: 8px;
-    }
-    .log-entry { 
-      padding: 4px 8px; 
+    .bar-fill {
+      height: 100%;
       border-radius: 2px;
-      margin-bottom: 2px;
+      transition: width 0.5s ease;
     }
-    .log-entry:hover {
-      background: rgba(255,255,255,0.03);
-    }
-    .log-time { color: var(--tb-text-disabled); margin-right: 8px; }
-    .log-type { 
-      display: inline-block;
-      padding: 1px 6px; 
-      border-radius: 2px; 
-      margin-right: 8px;
-      font-size: 10px;
-      font-weight: 500;
-      text-transform: uppercase;
-    }
-    .log-type.info { background: var(--tb-info); color: white; }
-    .log-type.warn { background: var(--tb-warning); color: black; }
-    .log-type.error { background: var(--tb-error); color: white; }
-    .log-type.rpc { background: #7b1fa2; color: white; }
-    .log-type.data { background: var(--tb-success); color: white; }
-    .log-message { color: var(--tb-text-secondary); }
     
-    /* Lifecycle Indicators */
-    .lifecycle-bar {
-      display: flex;
-      gap: 8px;
-      padding: 12px;
-      background: var(--tb-surface);
-      border-top: 1px solid var(--tb-divider);
-    }
-    .lifecycle-item {
-      flex: 1;
-      text-align: center;
-      padding: 8px;
-      font-size: 11px;
-      font-weight: 500;
-      background: var(--tb-surface-light);
-      border-radius: 4px;
-      color: var(--tb-text-disabled);
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .lifecycle-item:hover {
-      background: rgba(255,255,255,0.1);
-    }
-    .lifecycle-item.active {
-      background: var(--tb-primary);
+    .bar-fill.water { background: linear-gradient(90deg, #00bcd4, #00d4ff); }
+    .bar-fill.power { background: linear-gradient(90deg, #f44336, #ff4081); }
+    .bar-fill.heat { background: linear-gradient(90deg, #ff9800, #ffb74d); }
+    
+    .bar-value {
+      position: absolute;
+      right: 4px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 9px;
       color: white;
-    }
-    .lifecycle-item.triggered {
-      animation: pulse 0.4s ease;
-    }
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); background: var(--tb-accent); }
-      100% { transform: scale(1); }
-    }
-
-    /* Scrollbar - TB Style */
-    ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { 
-      background: rgba(255,255,255,0.2); 
-      border-radius: 4px; 
-    }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
-    
-    /* Select */
-    .form-select {
-      width: 100%;
-      padding: 10px 12px;
-      background: var(--tb-surface);
-      border: 1px solid var(--tb-divider);
-      border-radius: 4px;
-      color: var(--tb-text-primary);
-      font-size: 14px;
-      cursor: pointer;
-    }
-    
-    /* Toggle Switch */
-    .toggle-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 0;
-    }
-    .toggle-label {
-      font-size: 13px;
-      color: var(--tb-text-secondary);
-    }
-    .toggle {
-      position: relative;
-      width: 36px;
-      height: 20px;
-    }
-    .toggle input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-    .toggle-slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: var(--tb-text-disabled);
-      border-radius: 20px;
-      transition: 0.3s;
-    }
-    .toggle-slider:before {
-      position: absolute;
-      content: "";
-      height: 14px;
-      width: 14px;
-      left: 3px;
-      bottom: 3px;
-      background-color: white;
-      border-radius: 50%;
-      transition: 0.3s;
-    }
-    .toggle input:checked + .toggle-slider {
-      background-color: var(--tb-accent);
-    }
-    .toggle input:checked + .toggle-slider:before {
-      transform: translateX(16px);
+      font-family: 'Roboto Mono', monospace;
     }
   </style>
 </head>
 <body>
-  <div class="app-container">
-    <!-- Sidebar -->
-    <div class="sidebar">
-      <div class="sidebar-header">
-        <span class="material-icons" style="margin-right: 12px;">dashboard</span>
-        <h2>Widget Simulator</h2>
-      </div>
-      
-      <!-- Tabs -->
-      <div class="tabs">
-        <div class="tab active" data-tab="data">Data</div>
-        <div class="tab" data-tab="settings">Settings</div>
-        <div class="tab" data-tab="rpc">RPC</div>
-      </div>
-      
-      <!-- Data Tab -->
-      <div class="tab-content active" data-tab="data">
-        <div class="card">
-          <div class="card-header">
-            <span class="material-icons">show_chart</span>
-            <span class="card-title">Telemetry Data</span>
-          </div>
-          <div class="card-content">
-            <div id="data-panel"></div>
-            <button class="btn btn-flat" onclick="addDataKey()" style="margin-top: 8px;">
-              <span class="material-icons">add</span>
-              Add Key
-            </button>
-          </div>
+  <header class="tb-dashboard-header">
+    <div class="tb-logo">
+      <span class="material-icons">developer_board</span>
+    </div>
+    <h1 class="tb-title">换热站监控系统</h1>
+    <div class="tb-header-right">
+      <span class="tb-time" id="currentTime">--:--:--</span>
+      <span class="tb-date" id="currentDate">----年--月--日</span>
+    </div>
+  </header>
+  
+  <div class="tb-dashboard-content">
+    <!-- 左侧面板 - 图表和统计 -->
+    <div class="left-panel">
+      <!-- 历史曲线 -->
+      <div class="panel-section">
+        <div class="panel-section-header">
+          <span class="material-icons">show_chart</span>
+          历史曲线
         </div>
-        
-        <div class="card">
-          <div class="card-header">
-            <span class="material-icons">sync</span>
-            <span class="card-title">Auto Update</span>
-          </div>
-          <div class="card-content">
-            <div class="form-group">
-              <label class="form-label">Update Interval (ms)</label>
-              <input type="number" class="form-input" id="update-interval" value="1000" min="100" max="10000">
-            </div>
-            <div class="btn-group">
-              <button class="btn btn-success" onclick="startAutoUpdate()" id="btn-start">
-                <span class="material-icons">play_arrow</span>
-                Start
-              </button>
-              <button class="btn btn-error" onclick="stopAutoUpdate()" id="btn-stop" disabled>
-                <span class="material-icons">stop</span>
-                Stop
-              </button>
-              <button class="btn" onclick="randomizeData()">
-                <span class="material-icons">shuffle</span>
-                Random
-              </button>
-            </div>
-          </div>
+        <div class="panel-section-content" style="height: 160px; padding: 4px;">
+          <div id="chartContainer" style="width: 100%; height: 100%; background: #0d2137; border-radius: 4px;"></div>
         </div>
       </div>
       
-      <!-- Settings Tab -->
-      <div class="tab-content" data-tab="settings">
-        <div class="card">
-          <div class="card-header">
-            <span class="material-icons">settings</span>
-            <span class="card-title">Widget Settings</span>
-          </div>
-          <div class="card-content">
-            <div class="form-group">
-              <label class="form-label">Scale Mode</label>
-              <select class="form-select" id="setting-scale-mode" onchange="updateSettings()">
-                <option value="contain">Contain (Fit inside)</option>
-                <option value="stretch">Stretch (Fill container)</option>
-                <option value="none">None (Original size)</option>
-              </select>
-            </div>
-            
-            <div class="toggle-row">
-              <span class="toggle-label">Enable Interaction</span>
-              <label class="toggle">
-                <input type="checkbox" id="setting-interaction" checked onchange="updateSettings()">
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-            
-            <div class="toggle-row">
-              <span class="toggle-label">Enable Animation</span>
-              <label class="toggle">
-                <input type="checkbox" id="setting-animation" checked onchange="updateSettings()">
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-            
-            <div class="toggle-row">
-              <span class="toggle-label">Debug Mode</span>
-              <label class="toggle">
-                <input type="checkbox" id="setting-debug" onchange="updateSettings()">
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-          </div>
+      <!-- 能耗排名 -->
+      <div class="panel-section">
+        <div class="panel-section-header">
+          <span class="material-icons">bar_chart</span>
+          能耗排名
         </div>
-        
-        <div class="card">
-          <div class="card-header">
-            <span class="material-icons">code</span>
-            <span class="card-title">SCADA Configuration</span>
-          </div>
-          <div class="card-content">
-            <div class="form-group">
-              <label class="form-label">View Config (JSON)</label>
-              <textarea class="form-textarea" id="setting-scada-config" style="height: 300px;" onchange="updateSettings()"></textarea>
+        <div class="panel-section-content">
+          <div class="bar-chart-container">
+            <div class="bar-item">
+              <span class="bar-label">耗水</span>
+              <div class="bar-track">
+                <div class="bar-fill water" id="barWater" style="width: 66%;"></div>
+                <span class="bar-value" id="barWaterVal">66.2 m³</span>
+              </div>
+            </div>
+            <div class="bar-item">
+              <span class="bar-label">耗电</span>
+              <div class="bar-track">
+                <div class="bar-fill power" id="barPower" style="width: 78%;"></div>
+                <span class="bar-value" id="barPowerVal">78.9 KW/h</span>
+              </div>
+            </div>
+            <div class="bar-item">
+              <span class="bar-label">耗能</span>
+              <div class="bar-track">
+                <div class="bar-fill heat" id="barHeat" style="width: 76%;"></div>
+                <span class="bar-value" id="barHeatVal">76.1 m³</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
       
-      <!-- RPC Tab -->
-      <div class="tab-content" data-tab="rpc">
-        <div class="card">
-          <div class="card-header">
-            <span class="material-icons">send</span>
-            <span class="card-title">Send RPC Command</span>
-          </div>
-          <div class="card-content">
-            <div class="form-group">
-              <label class="form-label">Method</label>
-              <input type="text" class="form-input" id="rpc-method" value="setValue" placeholder="e.g., setValue, getState">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Params (JSON)</label>
-              <textarea class="form-textarea" id="rpc-params" style="height: 80px;">{"key": "valve1", "value": 100}</textarea>
-            </div>
-            <div class="btn-group">
-              <button class="btn" onclick="sendRpcOneWay()">
-                <span class="material-icons">arrow_forward</span>
-                Send OneWay
-              </button>
-              <button class="btn btn-accent" onclick="sendRpcTwoWay()">
-                <span class="material-icons">swap_horiz</span>
-                Send TwoWay
-              </button>
-            </div>
-          </div>
+      <!-- 故障统计 -->
+      <div class="panel-section">
+        <div class="panel-section-header">
+          <span class="material-icons">warning</span>
+          故障统计
         </div>
-        
-        <div class="card">
-          <div class="card-header">
-            <span class="material-icons">reply</span>
-            <span class="card-title">Mock Response</span>
-          </div>
-          <div class="card-content">
-            <div class="form-group">
-              <label class="form-label">Response (JSON)</label>
-              <textarea class="form-textarea" id="rpc-mock-response" style="height: 60px;">{"success": true, "value": 123}</textarea>
-            </div>
-          </div>
+        <div class="panel-section-content">
+          <div id="faultBars" style="display: flex; gap: 2px; height: 30px; align-items: flex-end;"></div>
         </div>
       </div>
       
-      <!-- Lifecycle Bar -->
-      <div class="lifecycle-bar">
-        <div class="lifecycle-item" id="lc-init" onclick="triggerInit()">onInit</div>
-        <div class="lifecycle-item" id="lc-data" onclick="triggerDataUpdate()">onData</div>
-        <div class="lifecycle-item" id="lc-resize" onclick="triggerResize()">onResize</div>
-        <div class="lifecycle-item" id="lc-destroy" onclick="triggerDestroy()">onDestroy</div>
+      <!-- 数据报表 -->
+      <div class="panel-section" style="flex: 1; overflow: hidden;">
+        <div class="panel-section-header">
+          <span class="material-icons">table_chart</span>
+          数据报表
+        </div>
+        <div class="panel-section-content" style="height: calc(100% - 30px); padding: 4px; overflow: hidden;">
+          <div id="tableContainer" style="width: 100%; height: 100%; background: #0d2137; border-radius: 4px; overflow: hidden;"></div>
+        </div>
       </div>
     </div>
     
-    <!-- Main Content -->
-    <div class="main-content">
-      <div class="preview-header">
-        <span class="preview-title">SCADA Widget Preview</span>
-        <div class="status-badge stopped" id="widget-status">
-          <span class="dot"></span>
-          <span>Stopped</span>
+    <!-- 主视图 -->
+    <div class="main-view">
+      <div class="tb-widget-frame">
+        <div class="tb-widget-header">
+          <span class="tb-widget-title">换热站工艺流程图</span>
+        </div>
+        <div class="tb-widget-content" id="widgetContainer"></div>
+      </div>
+    </div>
+    
+    <!-- 右侧面板 - 控制 -->
+    <div class="right-panel">
+      <div class="panel-section">
+        <div class="panel-section-header">
+          <span class="material-icons">monitor_heart</span>
+          系统状态
+        </div>
+        <div class="panel-section-content">
+          <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+            <span class="status-indicator running"><span class="status-dot"></span>运行中</span>
+            <span class="status-indicator running"><span class="status-dot"></span>PLC在线</span>
+          </div>
         </div>
       </div>
       
-      <div id="widget-container"></div>
-      
-      <div class="log-panel">
-        <div class="log-header">
-          <span class="log-header-title">Console Output</span>
-          <button class="btn btn-flat" onclick="clearLogs()" style="padding: 4px 8px; font-size: 11px;">
-            <span class="material-icons" style="font-size: 14px;">delete</span>
-            Clear
-          </button>
+      <div class="panel-section">
+        <div class="panel-section-header">
+          <span class="material-icons">speed</span>
+          实时数据
         </div>
-        <div class="log-content" id="log-panel"></div>
+        <div class="panel-section-content">
+          <div class="data-card">
+            <div class="data-card-title">一次供水温度</div>
+            <span class="data-card-value" id="displaySupplyTemp1">--</span>
+            <span class="data-card-unit">°C</span>
+          </div>
+          <div class="data-card">
+            <div class="data-card-title">一次回水温度</div>
+            <span class="data-card-value" id="displayReturnTemp1">--</span>
+            <span class="data-card-unit">°C</span>
+          </div>
+          <div class="data-card">
+            <div class="data-card-title">瞬时热量</div>
+            <span class="data-card-value" id="displayHeatFlow">--</span>
+            <span class="data-card-unit">GJ</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="panel-section">
+        <div class="panel-section-header">
+          <span class="material-icons">tune</span>
+          设备控制
+        </div>
+        <div class="panel-section-content">
+          <div class="control-grid">
+            <button class="control-btn active" id="btnPump1" onclick="togglePump(1)">
+              <span class="material-icons">rotate_right</span>
+              <span>循环泵1</span>
+            </button>
+            <button class="control-btn active" id="btnPump2" onclick="togglePump(2)">
+              <span class="material-icons">rotate_right</span>
+              <span>循环泵2</span>
+            </button>
+            <button class="control-btn" id="btnPump3" onclick="togglePump(3)">
+              <span class="material-icons">rotate_right</span>
+              <span>补水泵1</span>
+            </button>
+            <button class="control-btn" id="btnPump4" onclick="togglePump(4)">
+              <span class="material-icons">rotate_right</span>
+              <span>补水泵2</span>
+            </button>
+          </div>
+          
+          <div class="slider-control" style="margin-top: 10px;">
+            <div class="slider-label">
+              <span>电磁阀开度</span>
+              <span class="slider-value" id="valveValue">63%</span>
+            </div>
+            <input type="range" class="slider-input" id="valveSlider" min="0" max="100" value="63" oninput="updateValve(this.value)">
+          </div>
+          
+          <div class="slider-control">
+            <div class="slider-label">
+              <span>触发告警</span>
+              <span class="slider-value" id="alarmValue">关</span>
+            </div>
+            <input type="range" class="slider-input" id="alarmSlider" min="0" max="1" value="0" oninput="updateAlarm(this.value)">
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <script>
-    // ============================================
-    // Demo SCADA Configuration
-    // ============================================
-    var demoScadaConfig = {
-      view: {
-        id: "demo-view",
-        name: "Industrial Process Demo",
-        type: "svg",
-        width: 800,
-        height: 500,
-        backgroundColor: "#2a323d",
-        svgcontent: `<svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
-          <!-- Background -->
-          <rect width="800" height="500" fill="#2a323d"/>
-          
-          <!-- Title -->
-          <text x="400" y="35" text-anchor="middle" fill="#fff" font-size="18" font-weight="500" font-family="Roboto">Industrial Process Monitoring</text>
-          
-          <!-- Tank -->
-          <g id="tank1" type="svg-ext-shapes">
-            <rect x="80" y="80" width="140" height="200" rx="8" fill="#305680" stroke="#4a7cb0" stroke-width="2"/>
-            <rect x="90" y="90" width="120" height="180" rx="4" fill="#3b4654"/>
-            <text x="150" y="300" text-anchor="middle" fill="#fff" font-size="14" font-family="Roboto">Storage Tank</text>
-          </g>
-          
-          <!-- Tank Level Display -->
-          <g id="tank-level-display" type="svg-ext-value">
-            <text x="150" y="180" text-anchor="middle" fill="#d97f0d" font-size="28" font-weight="500" font-family="Roboto">--</text>
-            <text x="150" y="205" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="12" font-family="Roboto">Level %</text>
-          </g>
-          
-          <!-- Pipe 1 -->
-          <path d="M220 180 L300 180" stroke="#4a7cb0" stroke-width="12" fill="none" stroke-linecap="round"/>
-          
-          <!-- Valve -->
-          <g id="valve1" type="svg-ext-shapes">
-            <rect x="300" y="160" width="50" height="40" rx="4" fill="#4caf50" stroke="#43a047" stroke-width="2"/>
-            <text x="325" y="185" text-anchor="middle" fill="#fff" font-size="14" font-weight="500" font-family="Roboto">V1</text>
-          </g>
-          
-          <!-- Pipe 2 -->
-          <path d="M350 180 L430 180" stroke="#4a7cb0" stroke-width="12" fill="none" stroke-linecap="round"/>
-          
-          <!-- Pump (only rotating part) -->
-          <g id="pump1" type="svg-ext-shapes">
-            <circle cx="490" cy="180" r="50" fill="#ff9800" stroke="#e65100" stroke-width="2"/>
-            <path d="M460 180 L490 150 L520 180 L490 210 Z" fill="#fff" opacity="0.3"/>
-          </g>
-          <!-- Pump Label (not rotating) -->
-          <text x="490" y="250" text-anchor="middle" fill="#fff" font-size="14" font-family="Roboto">Main Pump</text>
-          
-          <!-- Pipe 3 -->
-          <path d="M540 180 L620 180 L620 350 L350 350" stroke="#4a7cb0" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-          
-          <!-- Output Tank -->
-          <g id="tank2" type="svg-ext-shapes">
-            <rect x="580" y="80" width="140" height="160" rx="8" fill="#305680" stroke="#4a7cb0" stroke-width="2"/>
-            <rect x="590" y="90" width="120" height="140" rx="4" fill="#3b4654"/>
-            <text x="650" y="260" text-anchor="middle" fill="#fff" font-size="14" font-family="Roboto">Output Tank</text>
-          </g>
-          
-          <!-- Info Panel -->
-          <g transform="translate(80, 350)">
-            <rect width="200" height="120" rx="4" fill="#323c49"/>
-            <text x="100" y="25" text-anchor="middle" fill="#d97f0d" font-size="14" font-weight="500" font-family="Roboto">System Status</text>
-            <line x1="10" y1="35" x2="190" y2="35" stroke="rgba(255,255,255,0.12)"/>
-            
-            <text x="15" y="60" fill="rgba(255,255,255,0.7)" font-size="12" font-family="Roboto">Temperature:</text>
-            <text id="temp-value" x="185" y="60" text-anchor="end" fill="#fff" font-size="12" font-family="Roboto">-- °C</text>
-            
-            <text x="15" y="80" fill="rgba(255,255,255,0.7)" font-size="12" font-family="Roboto">Pressure:</text>
-            <text id="press-value" x="185" y="80" text-anchor="end" fill="#fff" font-size="12" font-family="Roboto">-- kPa</text>
-            
-            <text x="15" y="100" fill="rgba(255,255,255,0.7)" font-size="12" font-family="Roboto">Flow Rate:</text>
-            <text id="flow-value" x="185" y="100" text-anchor="end" fill="#fff" font-size="12" font-family="Roboto">-- L/min</text>
-          </g>
-          
-          <!-- Alarm Indicator -->
-          <g id="alarm-indicator" type="svg-ext-shapes">
-            <circle cx="730" cy="440" r="20" fill="#4caf50"/>
-            <text x="730" y="445" text-anchor="middle" fill="#fff" font-size="12" font-weight="500" font-family="Roboto">OK</text>
-          </g>
-        </svg>`,
-        items: {
-          "tank1": {
-            id: "tank1",
-            type: "svg-ext-shapes",
-            property: {
-              variableId: "tank_level",
-              ranges: [
-                { min: 0, max: 30, color: "#f44336", stroke: "#d32f2f" },
-                { min: 30, max: 70, color: "#305680", stroke: "#4a7cb0" },
-                { min: 70, max: 100, color: "#4caf50", stroke: "#43a047" }
-              ]
-            }
-          },
-          "valve1": {
-            id: "valve1",
-            type: "svg-ext-shapes",
-            property: {
-              variableId: "valve_status",
-              ranges: [
-                { min: 0, max: 0, color: "#f44336", stroke: "#d32f2f" },
-                { min: 1, max: 1, color: "#4caf50", stroke: "#43a047" }
-              ]
-            }
-          },
-          "pump1": {
-            id: "pump1",
-            type: "svg-ext-shapes",
-            property: {
-              variableId: "pump_status",
-              ranges: [
-                { min: 0, max: 0, color: "#616161", stroke: "#424242" },
-                { min: 1, max: 1, color: "#ff9800", stroke: "#e65100" }
-              ],
-              actions: [
-                {
-                  variableId: "pump_status",
-                  type: "clockwise",
-                  range: { min: 1, max: 1 }
-                },
-                {
-                  variableId: "pump_status",
-                  type: "stop",
-                  range: { min: 0, max: 0 }
-                }
-              ]
-            }
-          },
-          "tank2": {
-            id: "tank2",
-            type: "svg-ext-shapes",
-            property: {
-              variableId: "output_level",
-              ranges: [
-                { min: 0, max: 50, color: "#305680", stroke: "#4a7cb0" },
-                { min: 50, max: 100, color: "#4caf50", stroke: "#43a047" }
-              ]
-            }
-          },
-          "alarm-indicator": {
-            id: "alarm-indicator",
-            type: "svg-ext-shapes",
-            property: {
-              variableId: "alarm_status",
-              ranges: [
-                { min: 0, max: 0, color: "#4caf50" },
-                { min: 1, max: 1, color: "#f44336" }
-              ],
-              actions: [
-                {
-                  variableId: "alarm_status",
-                  type: "blink",
-                  range: { min: 1, max: 1 },
-                  options: {
-                    fillA: "#f44336",
-                    fillB: "#b71c1c",
-                    interval: 500
-                  }
-                }
-              ]
-            }
-          }
-        }
-      },
-      renderOptions: {
-        scaleMode: "contain",
-        enableAnimation: true,
-        enableInteraction: true,
-        debug: false
-      }
-    };
-    
-    // ============================================
-    // Mock Data
-    // ============================================
-    var mockData = {
-      tank_level: { value: 65, type: 'timeseries' },
-      temperature: { value: 42.5, type: 'timeseries' },
-      pressure: { value: 101.3, type: 'timeseries' },
-      flow_rate: { value: 150, type: 'timeseries' },
-      pump_status: { value: 1, type: 'attribute' },
-      valve_status: { value: 1, type: 'attribute' },
-      output_level: { value: 45, type: 'timeseries' },
-      alarm_status: { value: 0, type: 'attribute' }
-    };
-    
-    var autoUpdateInterval = null;
-    var widgetInitialized = false;
-    var scadaRenderer = null;
-    var dataAdapter = null;
-    
-    // ============================================
-    // TB Widget API Simulation
-    // ============================================
-    var self = {
-      ctx: {
-        $container: null,
-        $scope: {},
-        settings: {
-          scadaConfig: null,
-          scaleMode: 'contain',
-          enableInteraction: true,
-          enableAnimation: true,
-          debug: false
-        },
-        defaultSubscription: {
-          data: []
-        },
-        width: 0,
-        height: 0,
-        detectChanges: function() {},
-        controlApi: {
-          sendOneWayCommand: function(method, params, timeout) {
-            log('rpc', 'OneWay: ' + method + '(' + JSON.stringify(params) + ')');
-            return Promise.resolve();
-          },
-          sendTwoWayCommand: function(method, params, timeout) {
-            log('rpc', 'TwoWay: ' + method + '(' + JSON.stringify(params) + ')');
-            var response = JSON.parse(document.getElementById('rpc-mock-response').value || '{}');
-            return Promise.resolve(response);
-          }
-        }
-      },
-      onInit: null,
-      onDataUpdated: null,
-      onResize: null,
-      onDestroy: null
-    };
-    
-    // ============================================
-    // Logging
-    // ============================================
-    function log(type, message) {
-      var panel = document.getElementById('log-panel');
-      var time = new Date().toLocaleTimeString();
-      var entry = document.createElement('div');
-      entry.className = 'log-entry';
-      entry.innerHTML = 
-        '<span class="log-time">' + time + '</span>' +
-        '<span class="log-type ' + type + '">' + type.toUpperCase() + '</span>' +
-        '<span class="log-message">' + escapeHtml(message) + '</span>';
-      panel.appendChild(entry);
-      panel.scrollTop = panel.scrollHeight;
-      
-      while (panel.children.length > 100) {
-        panel.removeChild(panel.firstChild);
-      }
-    }
-    
-    function escapeHtml(text) {
-      var div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
-    
-    function clearLogs() {
-      document.getElementById('log-panel').innerHTML = '';
-      log('info', 'Logs cleared');
-    }
-    
-    // ============================================
-    // Data Functions
-    // ============================================
-    function toTbDataFormat(data) {
-      return Object.entries(data).map(function(entry) {
-        var key = entry[0];
-        var item = entry[1];
-        return {
-          dataKey: { name: key, type: item.type, label: key },
-          data: [[Date.now(), item.value]]
-        };
-      });
-    }
-    
-    function updateDataPanel() {
-      var html = '';
-      Object.entries(mockData).forEach(function(entry) {
-        var key = entry[0];
-        var item = entry[1];
-        html += '<div class="data-item">';
-        html += '<span class="data-key">' + key + '<span class="data-type">' + item.type.substr(0,4) + '</span></span>';
-        html += '<span class="data-value">' + item.value + '</span>';
-        html += '</div>';
-      });
-      document.getElementById('data-panel').innerHTML = html;
-    }
-    
-    function randomizeData() {
-      mockData.tank_level.value = Math.floor(20 + Math.random() * 70);
-      mockData.temperature.value = (35 + Math.random() * 20).toFixed(1);
-      mockData.pressure.value = (95 + Math.random() * 15).toFixed(1);
-      mockData.flow_rate.value = Math.floor(100 + Math.random() * 100);
-      mockData.pump_status.value = Math.random() > 0.2 ? 1 : 0;
-      mockData.valve_status.value = Math.random() > 0.3 ? 1 : 0;
-      mockData.output_level.value = Math.floor(20 + Math.random() * 60);
-      mockData.alarm_status.value = Math.random() > 0.9 ? 1 : 0;
-      
-      self.ctx.defaultSubscription.data = toTbDataFormat(mockData);
-      
-      if (typeof self.onDataUpdated === 'function') {
-        triggerLifecycle('lc-data');
-        self.onDataUpdated();
-      }
-      
-      updateDataPanel();
-    }
-    
-    function addDataKey() {
-      var key = prompt('Enter data key name:');
-      if (key && !mockData[key]) {
-        var value = prompt('Enter initial value:', '0');
-        mockData[key] = { 
-          value: isNaN(parseFloat(value)) ? value : parseFloat(value), 
-          type: 'timeseries' 
-        };
-        updateDataPanel();
-        self.ctx.defaultSubscription.data = toTbDataFormat(mockData);
-        log('info', 'Added key: ' + key);
-      }
-    }
-    
-    // ============================================
-    // Auto Update
-    // ============================================
-    function startAutoUpdate() {
-      if (!autoUpdateInterval) {
-        var interval = parseInt(document.getElementById('update-interval').value) || 1000;
-        autoUpdateInterval = setInterval(randomizeData, interval);
-        document.getElementById('btn-start').disabled = true;
-        document.getElementById('btn-stop').disabled = false;
-        updateStatus(true);
-        log('info', 'Auto update started (' + interval + 'ms)');
-      }
-    }
-    
-    function stopAutoUpdate() {
-      if (autoUpdateInterval) {
-        clearInterval(autoUpdateInterval);
-        autoUpdateInterval = null;
-        document.getElementById('btn-start').disabled = false;
-        document.getElementById('btn-stop').disabled = true;
-        updateStatus(false);
-        log('info', 'Auto update stopped');
-      }
-    }
-    
-    function updateStatus(running) {
-      var badge = document.getElementById('widget-status');
-      badge.className = 'status-badge ' + (running ? 'running' : 'stopped');
-      badge.innerHTML = '<span class="dot"></span><span>' + (running ? 'Running' : 'Stopped') + '</span>';
-    }
-    
-    // ============================================
-    // Settings
-    // ============================================
-    function updateSettings() {
-      self.ctx.settings.scaleMode = document.getElementById('setting-scale-mode').value;
-      self.ctx.settings.enableInteraction = document.getElementById('setting-interaction').checked;
-      self.ctx.settings.enableAnimation = document.getElementById('setting-animation').checked;
-      self.ctx.settings.debug = document.getElementById('setting-debug').checked;
-      
-      try {
-        var configText = document.getElementById('setting-scada-config').value;
-        if (configText) {
-          self.ctx.settings.scadaConfig = JSON.parse(configText);
-        }
-      } catch(e) {
-        log('warn', 'Invalid SCADA config JSON');
-      }
-    }
-    
-    // ============================================
-    // RPC Functions
-    // ============================================
-    function sendRpcOneWay() {
-      var method = document.getElementById('rpc-method').value;
-      try {
-        var params = JSON.parse(document.getElementById('rpc-params').value);
-        self.ctx.controlApi.sendOneWayCommand(method, params);
-      } catch(e) {
-        log('error', 'Invalid params JSON');
-      }
-    }
-    
-    function sendRpcTwoWay() {
-      var method = document.getElementById('rpc-method').value;
-      try {
-        var params = JSON.parse(document.getElementById('rpc-params').value);
-        self.ctx.controlApi.sendTwoWayCommand(method, params).then(function(response) {
-          log('info', 'Response: ' + JSON.stringify(response));
-        });
-      } catch(e) {
-        log('error', 'Invalid params JSON');
-      }
-    }
-    
-    // ============================================
-    // Lifecycle
-    // ============================================
-    function triggerLifecycle(id) {
-      var el = document.getElementById(id);
-      el.classList.add('active', 'triggered');
-      setTimeout(function() {
-        el.classList.remove('triggered');
-      }, 400);
-    }
-    
-    function triggerInit() {
-      if (typeof self.onInit === 'function') {
-        triggerLifecycle('lc-init');
-        self.onInit();
-        widgetInitialized = true;
-        log('info', 'Widget initialized');
-      } else {
-        log('warn', 'onInit not defined');
-      }
-    }
-    
-    function triggerDataUpdate() {
-      if (typeof self.onDataUpdated === 'function') {
-        triggerLifecycle('lc-data');
-        self.onDataUpdated();
-        log('data', 'Data updated');
-      }
-    }
-    
-    function triggerResize() {
-      var container = document.getElementById('widget-container');
-      self.ctx.width = container.clientWidth;
-      self.ctx.height = container.clientHeight;
-      
-      if (typeof self.onResize === 'function') {
-        triggerLifecycle('lc-resize');
-        self.onResize();
-        log('info', 'Resized: ' + self.ctx.width + 'x' + self.ctx.height);
-      }
-    }
-    
-    function triggerDestroy() {
-      if (typeof self.onDestroy === 'function') {
-        triggerLifecycle('lc-destroy');
-        self.onDestroy();
-        widgetInitialized = false;
-        log('info', 'Widget destroyed');
-      }
-      
-      stopAutoUpdate();
-      document.getElementById('widget-container').innerHTML = '';
-      document.querySelectorAll('.lifecycle-item').forEach(function(el) {
-        el.classList.remove('active');
-      });
-    }
-    
-    // ============================================
-    // Tab Switching
-    // ============================================
-    document.querySelectorAll('.tab').forEach(function(tab) {
-      tab.addEventListener('click', function() {
-        var tabName = this.dataset.tab;
-        document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
-        this.classList.add('active');
-        document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
-        document.querySelector('.tab-content[data-tab="' + tabName + '"]').classList.add('active');
-      });
-    });
-    
-    // ============================================
-    // Window Resize
-    // ============================================
-    var resizeTimeout;
-    window.addEventListener('resize', function() {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(function() {
-        if (widgetInitialized && typeof self.onResize === 'function') {
-          triggerResize();
-        }
-      }, 250);
-    });
-    
-    // ============================================
-    // Initialization
-    // ============================================
-    function init() {
-      self.ctx.$container = [document.getElementById('widget-container')];
-      
-      var container = document.getElementById('widget-container');
-      self.ctx.width = container.clientWidth;
-      self.ctx.height = container.clientHeight;
-      
-      // Set demo config
-      self.ctx.settings.scadaConfig = demoScadaConfig;
-      document.getElementById('setting-scada-config').value = JSON.stringify(demoScadaConfig, null, 2);
-      
-      updateDataPanel();
-      self.ctx.defaultSubscription.data = toTbDataFormat(mockData);
-      
-      log('info', 'ThingsBoard Widget Simulator ready');
-      log('info', 'Container size: ' + self.ctx.width + 'x' + self.ctx.height);
-    }
-    
-    document.addEventListener('DOMContentLoaded', init);
-  </script>
-  
-  <!-- Widget Implementation -->
   <script type="module">
-    // Import FUXA Core modules
-    import { 
-      GaugesManager, 
-      HmiService, 
-      FuxaView,
-      Utils,
-      GaugeSettings,
-      GaugeProperty,
-      Variable,
-      View,
-      Hmi,
-      VERSION,
-      NAME
-    } from '../src/index.ts';
-    
-    console.log(`[${NAME}] Version ${VERSION} loaded`);
-    console.log('[FUXA Core] Modules imported successfully');
-    
-    // Store references globally for widget use
-    window.FuxaCore = {
-      GaugesManager,
-      HmiService,
-      FuxaView,
-      Utils,
-      View,
-      Hmi
+    import { createScadaViewerWidget } from '../src/index.ts';
+
+    // ========================================
+    // 模拟遥测数据
+    // ========================================
+    const telemetryData = {
+      supply_temp_1: 90.0,
+      return_temp_1: 68.0,
+      supply_temp_2: 61.7,
+      return_temp_2: 51.9,
+      supply_pressure_1: 62.1,
+      return_pressure_1: 63.0,
+      supply_pressure_2: 63.3,
+      return_pressure_2: 52.6,
+      flow_rate_1: 54.8,
+      heat_flow_1: 68.0,
+      flow_rate_2: 50.3,
+      heat_flow_2: 51.9,
+      pump_1_status: 1,
+      pump_2_status: 1,
+      pump_3_status: 0,
+      pump_4_status: 0,
+      pump_1_freq: 33.2,
+      pump_2_freq: 30.5,
+      pump_3_freq: 33.2,
+      pump_4_freq: 39.3,
+      valve_1: 63.3,
+      valve_2: 90,
+      tank_level: 79,
+      pool_level: 63.3,
+      pipe_flow_1: 1,
+      pipe_flow_2: 1,
+      alarm_circulation: 0,
+      alarm_supply: 0,
+      // 能耗数据
+      water_consumption: 66.2,
+      power_consumption: 78.9,
+      heat_consumption: 76.1,
+      // 事件演示变量
+      test_var: 0,
+      switch_status: 0,
+      hover_state: 0,
+      press_value: 0
     };
+
+    // 历史数据存储
+    const historyData = {
+      supply_temp_1: [],
+      return_temp_1: []
+    };
+    const maxHistoryPoints = 60;
+
+    function toTBDataFormat(data) {
+      const timestamp = Date.now();
+      return Object.entries(data).map(([key, value]) => ({
+        dataKey: { name: key, type: 'timeseries', label: key, settings: {} },
+        data: [[timestamp, value]]
+      }));
+    }
+
+    // ========================================
+    // 换热站 SVG
+    // ========================================
+    const heatStationSVG = `
+<svg viewBox="0 0 1100 700" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="pipeSupply" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#4fc3f7"/>
+      <stop offset="50%" stop-color="#0288d1"/>
+      <stop offset="100%" stop-color="#01579b"/>
+    </linearGradient>
+    <linearGradient id="pipeReturn" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f48fb1"/>
+      <stop offset="50%" stop-color="#e91e63"/>
+      <stop offset="100%" stop-color="#880e4f"/>
+    </linearGradient>
+    <radialGradient id="pumpGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1565c0" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#0d47a1" stop-opacity="0.9"/>
+    </radialGradient>
+    <symbol id="fanBlade" viewBox="-30 -30 60 60">
+      <path d="M 0 -25 Q 15 -15 0 0 Q -15 -15 0 -25" fill="#1e88e5"/>
+      <path d="M 25 0 Q 15 15 0 0 Q 15 -15 25 0" fill="#1e88e5"/>
+      <path d="M 0 25 Q -15 15 0 0 Q 15 15 0 25" fill="#1e88e5"/>
+      <path d="M -25 0 Q -15 -15 0 0 Q -15 15 -25 0" fill="#1e88e5"/>
+      <circle cx="0" cy="0" r="6" fill="#0d47a1"/>
+    </symbol>
+  </defs>
+  
+  <rect width="1100" height="700" fill="#0a1929"/>
+  <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e3a5f" stroke-width="0.5" opacity="0.3"/>
+  </pattern>
+  <rect width="1100" height="700" fill="url(#grid)"/>
+
+  <!-- 一次侧数据 -->
+  <g transform="translate(30, 40)">
+    <text x="0" y="0" fill="#8899a6" font-size="12">瞬时流量</text>
+    <g id="val-flow-1" type="svg-ext-value"><text x="70" y="0" fill="#00d4ff" font-size="14" font-family="Roboto Mono">--</text></g>
+    <text x="115" y="0" fill="#8899a6" font-size="10">m³/h</text>
+  </g>
+  <g transform="translate(30, 60)">
+    <text x="0" y="0" fill="#8899a6" font-size="12">瞬时热量</text>
+    <g id="val-heat-1" type="svg-ext-value"><text x="70" y="0" fill="#00d4ff" font-size="14" font-family="Roboto Mono">--</text></g>
+    <text x="115" y="0" fill="#8899a6" font-size="10">GJ</text>
+  </g>
+
+  <g transform="translate(30, 110)">
+    <text x="0" y="0" fill="#8899a6" font-size="11">供水压力</text>
+    <g id="val-pressure-supply-1" type="svg-ext-value"><text x="60" y="0" fill="#00d4ff" font-size="13" font-family="Roboto Mono">--</text></g>
+    <text x="105" y="0" fill="#8899a6" font-size="9">Mpa</text>
+  </g>
+  <g transform="translate(30, 130)">
+    <text x="0" y="0" fill="#8899a6" font-size="11">供水温度</text>
+    <g id="val-temp-supply-1" type="svg-ext-value"><text x="60" y="0" fill="#ff4081" font-size="13" font-family="Roboto Mono">--</text></g>
+    <text x="105" y="0" fill="#8899a6" font-size="9">°C</text>
+  </g>
+
+  <g transform="translate(30, 480)">
+    <text x="0" y="0" fill="#8899a6" font-size="11">回水压力</text>
+    <g id="val-pressure-return-1" type="svg-ext-value"><text x="60" y="0" fill="#00d4ff" font-size="13" font-family="Roboto Mono">--</text></g>
+    <text x="105" y="0" fill="#8899a6" font-size="9">Mpa</text>
+  </g>
+  <g transform="translate(30, 500)">
+    <text x="0" y="0" fill="#8899a6" font-size="11">回水温度</text>
+    <g id="val-temp-return-1" type="svg-ext-value"><text x="60" y="0" fill="#64b5f6" font-size="13" font-family="Roboto Mono">--</text></g>
+    <text x="105" y="0" fill="#8899a6" font-size="9">°C</text>
+  </g>
+
+  <!-- 一次侧管道 -->
+  <g id="pipe-supply-1" type="svg-ext-pipe">
+    <path d="M 150 170 H 280 V 260 H 350" stroke="#00d4ff" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="12,6"/>
+  </g>
+  <g id="pipe-return-1" type="svg-ext-pipe">
+    <path d="M 350 340 H 280 V 430 H 150" stroke="#ff4081" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="12,6"/>
+  </g>
+
+  <!-- 电磁阀 -->
+  <g id="valve-1" type="svg-ext-shapes" transform="translate(290, 295)">
+    <polygon points="0,0 18,-12 36,0 18,12" fill="#0d2137" stroke="#ff9800" stroke-width="2"/>
+    <rect x="14" y="-22" width="8" height="10" fill="#ff9800"/>
+  </g>
+  <text x="308" y="330" text-anchor="middle" fill="#8899a6" font-size="10">电磁阀</text>
+  <g id="val-valve-1" type="svg-ext-value" transform="translate(290, 345)">
+    <text x="18" y="0" text-anchor="middle" fill="#ff9800" font-size="12" font-family="Roboto Mono">--</text>
+  </g>
+  <text x="340" y="345" fill="#8899a6" font-size="9">%</text>
+
+  <!-- 换热器1 -->
+  <g transform="translate(350, 220)">
+    <rect x="0" y="0" width="120" height="160" rx="4" fill="#0d2137" stroke="#1e88e5" stroke-width="2"/>
+    <text x="60" y="-12" text-anchor="middle" fill="#8899a6" font-size="11">1线换热器</text>
+    <path d="M 15 35 Q 40 25 65 35 T 105 35" stroke="#1e88e5" stroke-width="2" fill="none"/>
+    <path d="M 15 65 Q 40 55 65 65 T 105 65" stroke="#1e88e5" stroke-width="2" fill="none"/>
+    <path d="M 15 95 Q 40 85 65 95 T 105 95" stroke="#1e88e5" stroke-width="2" fill="none"/>
+    <path d="M 15 125 Q 40 115 65 125 T 105 125" stroke="#1e88e5" stroke-width="2" fill="none"/>
+  </g>
+
+  <!-- 二次侧管道1 -->
+  <g id="pipe-out-1" type="svg-ext-pipe">
+    <path d="M 470 300 H 1050" stroke="#00d4ff" stroke-width="10" fill="none" stroke-dasharray="12,6"/>
+  </g>
+  <g id="pipe-back-1" type="svg-ext-pipe">
+    <path d="M 1050 340 H 470" stroke="#ff4081" stroke-width="10" fill="none" stroke-dasharray="12,6"/>
+  </g>
+
+  <!-- 循环泵1 -->
+  <g transform="translate(620, 320)">
+    <circle cx="0" cy="0" r="32" fill="url(#pumpGrad)" stroke="#1e88e5" stroke-width="2"/>
+    <g id="pump-1" type="svg-ext-shapes">
+      <use href="#fanBlade" x="-20" y="-20" width="40" height="40"/>
+    </g>
+  </g>
+  <text x="620" y="368" text-anchor="middle" fill="#8899a6" font-size="10">NO.1循环泵</text>
+  
+  <g transform="translate(550, 270)">
+    <text x="0" y="0" fill="#8899a6" font-size="10">NO.1循环泵频率</text>
+    <g id="val-pump1-freq" type="svg-ext-value"><text x="95" y="0" fill="#00d4ff" font-size="11" font-family="Roboto Mono">--</text></g>
+    <text x="135" y="0" fill="#8899a6" font-size="9">Hz</text>
+  </g>
+
+  <!-- 换热器2 -->
+  <g transform="translate(350, 430)">
+    <rect x="0" y="0" width="120" height="160" rx="4" fill="#0d2137" stroke="#1e88e5" stroke-width="2"/>
+    <text x="60" y="-12" text-anchor="middle" fill="#8899a6" font-size="11">2线换热器</text>
+    <path d="M 15 35 Q 40 25 65 35 T 105 35" stroke="#1e88e5" stroke-width="2" fill="none"/>
+    <path d="M 15 65 Q 40 55 65 65 T 105 65" stroke="#1e88e5" stroke-width="2" fill="none"/>
+    <path d="M 15 95 Q 40 85 65 95 T 105 95" stroke="#1e88e5" stroke-width="2" fill="none"/>
+    <path d="M 15 125 Q 40 115 65 125 T 105 125" stroke="#1e88e5" stroke-width="2" fill="none"/>
+  </g>
+
+  <!-- 二次侧管道2 -->
+  <g id="pipe-out-2" type="svg-ext-pipe">
+    <path d="M 470 510 H 1050" stroke="#00d4ff" stroke-width="10" fill="none" stroke-dasharray="12,6"/>
+  </g>
+  <g id="pipe-back-2" type="svg-ext-pipe">
+    <path d="M 1050 550 H 470" stroke="#ff4081" stroke-width="10" fill="none" stroke-dasharray="12,6"/>
+  </g>
+
+  <!-- 循环泵2 -->
+  <g transform="translate(620, 530)">
+    <circle cx="0" cy="0" r="32" fill="url(#pumpGrad)" stroke="#1e88e5" stroke-width="2"/>
+    <g id="pump-2" type="svg-ext-shapes">
+      <use href="#fanBlade" x="-20" y="-20" width="40" height="40"/>
+    </g>
+  </g>
+  <text x="620" y="578" text-anchor="middle" fill="#8899a6" font-size="10">NO.2循环泵</text>
+  
+  <g transform="translate(550, 480)">
+    <text x="0" y="0" fill="#8899a6" font-size="10">NO.2循环泵频率</text>
+    <g id="val-pump2-freq" type="svg-ext-value"><text x="95" y="0" fill="#00d4ff" font-size="11" font-family="Roboto Mono">--</text></g>
+    <text x="135" y="0" fill="#8899a6" font-size="9">Hz</text>
+  </g>
+
+  <!-- 水箱 -->
+  <g transform="translate(750, 390)">
+    <rect x="0" y="0" width="80" height="100" rx="3" fill="#0d2137" stroke="#1e88e5" stroke-width="2"/>
+    <text x="40" y="-10" text-anchor="middle" fill="#8899a6" font-size="10">水箱</text>
+    <rect x="4" y="25" width="72" height="71" fill="#1e88e5" opacity="0.3"/>
+    <g id="val-tank-level" type="svg-ext-value"><text x="32" y="65" text-anchor="middle" fill="#00d4ff" font-size="16" font-family="Roboto Mono">--</text></g>
+    <text x="55" y="65" fill="#8899a6" font-size="10">%</text>
+  </g>
+
+  <!-- 补水泵1 -->
+  <g transform="translate(870, 440)">
+    <circle cx="0" cy="0" r="28" fill="url(#pumpGrad)" stroke="#1e88e5" stroke-width="2"/>
+    <g id="pump-3" type="svg-ext-shapes">
+      <use href="#fanBlade" x="-16" y="-16" width="32" height="32"/>
+    </g>
+  </g>
+  <text x="870" y="480" text-anchor="middle" fill="#8899a6" font-size="9">NO.1补水泵</text>
+  
+  <g transform="translate(835, 400)">
+    <text x="0" y="0" fill="#8899a6" font-size="9">频率</text>
+    <g id="val-pump3-freq" type="svg-ext-value"><text x="30" y="0" fill="#00d4ff" font-size="10" font-family="Roboto Mono">--</text></g>
+    <text x="65" y="0" fill="#8899a6" font-size="8">Hz</text>
+  </g>
+
+  <!-- 补水泵2 -->
+  <g transform="translate(960, 440)">
+    <circle cx="0" cy="0" r="28" fill="url(#pumpGrad)" stroke="#1e88e5" stroke-width="2"/>
+    <g id="pump-4" type="svg-ext-shapes">
+      <use href="#fanBlade" x="-16" y="-16" width="32" height="32"/>
+    </g>
+  </g>
+  <text x="960" y="480" text-anchor="middle" fill="#8899a6" font-size="9">NO.2补水泵</text>
+  
+  <g transform="translate(925, 400)">
+    <text x="0" y="0" fill="#8899a6" font-size="9">频率</text>
+    <g id="val-pump4-freq" type="svg-ext-value"><text x="30" y="0" fill="#00d4ff" font-size="10" font-family="Roboto Mono">--</text></g>
+    <text x="65" y="0" fill="#8899a6" font-size="8">Hz</text>
+  </g>
+
+  <!-- 二次侧1线出口数据面板 -->
+  <g transform="translate(700, 140)">
+    <rect x="-5" y="-15" width="140" height="90" rx="3" fill="#0d2137" stroke="#1e4976" stroke-width="1" opacity="0.9"/>
+    <text x="60" y="0" text-anchor="middle" fill="#00d4ff" font-size="10" font-weight="500">1线二次侧</text>
     
-    // Global instances
-    let hmiService = null;
-    let gaugesManager = null;
-    let fuxaView = null;
-    let projectService = null;
+    <text x="0" y="22" fill="#8899a6" font-size="10">回水压力</text>
+    <g id="val-pressure-2-1" type="svg-ext-value"><text x="60" y="22" fill="#00d4ff" font-size="11" font-family="Roboto Mono">--</text></g>
+    <text x="100" y="22" fill="#8899a6" font-size="8">Mpa</text>
     
-    /**
-     * Create a proper View object from the demo config
-     */
-    function createViewFromConfig(config) {
-      const view = new View();
-      view.id = config.id || 'demo-view';
-      view.name = config.name || 'Demo View';
-      view.svgcontent = config.svgcontent || '';
-      view.type = config.type || 'svg';
+    <text x="0" y="42" fill="#8899a6" font-size="10">回水温度</text>
+    <g id="val-temp-2-1" type="svg-ext-value"><text x="60" y="42" fill="#64b5f6" font-size="11" font-family="Roboto Mono">--</text></g>
+    <text x="100" y="42" fill="#8899a6" font-size="8">°C</text>
+    
+    <text x="0" y="62" fill="#8899a6" font-size="10">瞬时流量</text>
+    <g id="val-flow-out-1" type="svg-ext-value"><text x="60" y="62" fill="#00d4ff" font-size="11" font-family="Roboto Mono">--</text></g>
+    <text x="100" y="62" fill="#8899a6" font-size="8">m³/h</text>
+  </g>
+
+  <!-- 二次侧2线出口数据面板 -->
+  <g transform="translate(700, 600)">
+    <rect x="-5" y="-15" width="140" height="70" rx="3" fill="#0d2137" stroke="#1e4976" stroke-width="1" opacity="0.9"/>
+    <text x="60" y="0" text-anchor="middle" fill="#00d4ff" font-size="10" font-weight="500">2线二次侧</text>
+    
+    <text x="0" y="22" fill="#8899a6" font-size="10">瞬时流量</text>
+    <g id="val-flow-out-2" type="svg-ext-value"><text x="60" y="22" fill="#00d4ff" font-size="11" font-family="Roboto Mono">--</text></g>
+    <text x="100" y="22" fill="#8899a6" font-size="8">m³/h</text>
+    
+    <text x="0" y="42" fill="#8899a6" font-size="10">瞬时热量</text>
+    <g id="val-heat-out-2" type="svg-ext-value"><text x="60" y="42" fill="#00d4ff" font-size="11" font-family="Roboto Mono">--</text></g>
+    <text x="100" y="42" fill="#8899a6" font-size="8">GJ</text>
+  </g>
+
+  <!-- 故障指示灯 -->
+  <g transform="translate(900, 40)">
+    <rect x="0" y="0" width="140" height="35" rx="3" fill="#0d2137" stroke="#f44336" stroke-width="1.5"/>
+    <g id="alarm-circulation" type="svg-ext-shapes">
+      <circle cx="22" cy="17" r="9" fill="#2a2a2a" stroke="#f44336" stroke-width="1.5"/>
+    </g>
+    <text x="40" y="22" fill="#f44336" font-size="11">循环泵变频故障</text>
+  </g>
+  
+  <g transform="translate(900, 85)">
+    <rect x="0" y="0" width="140" height="35" rx="3" fill="#0d2137" stroke="#f44336" stroke-width="1.5"/>
+    <g id="alarm-supply" type="svg-ext-shapes">
+      <circle cx="22" cy="17" r="9" fill="#2a2a2a" stroke="#f44336" stroke-width="1.5"/>
+    </g>
+    <text x="40" y="22" fill="#f44336" font-size="11">补水泵变频故障</text>
+  </g>
+
+  <!-- 集水坑 -->
+  <g transform="translate(900, 620)">
+    <rect x="0" y="0" width="100" height="50" rx="3" fill="#0d2137" stroke="#1e88e5" stroke-width="2"/>
+    <text x="50" y="-8" text-anchor="middle" fill="#8899a6" font-size="10">集水坑液位</text>
+    <g id="val-pool-level" type="svg-ext-value"><text x="40" y="32" text-anchor="middle" fill="#00d4ff" font-size="14" font-family="Roboto Mono">--</text></g>
+    <text x="70" y="32" fill="#8899a6" font-size="10">%</text>
+  </g>
+
+  <!-- ========================================== -->
+  <!-- 事件演示区域 -->
+  <!-- ========================================== -->
+  <g transform="translate(180, 560)">
+    <rect x="-10" y="-25" width="280" height="130" rx="4" fill="#0d2137" stroke="#4caf50" stroke-width="1" opacity="0.95"/>
+    <text x="130" y="-8" text-anchor="middle" fill="#4caf50" font-size="11" font-weight="500">事件演示</text>
+    
+    <!-- 点击设置值按钮 -->
+    <g id="btn-set-value" type="svg-ext-shapes" transform="translate(0, 10)" style="cursor:pointer">
+      <rect x="0" y="0" width="80" height="30" rx="4" fill="#1565c0" stroke="#42a5f5" stroke-width="1"/>
+      <text x="40" y="20" text-anchor="middle" fill="white" font-size="10">设置值=100</text>
+    </g>
+    
+    <!-- 点击切换值按钮 -->
+    <g id="btn-toggle-value" type="svg-ext-shapes" transform="translate(95, 10)" style="cursor:pointer">
+      <rect x="0" y="0" width="80" height="30" rx="4" fill="#7b1fa2" stroke="#ba68c8" stroke-width="1"/>
+      <text x="40" y="20" text-anchor="middle" fill="white" font-size="10">切换开关</text>
+    </g>
+    
+    <!-- 鼠标悬停变色 -->
+    <g id="btn-hover-demo" type="svg-ext-shapes" transform="translate(190, 10)" style="cursor:pointer">
+      <rect x="0" y="0" width="70" height="30" rx="4" fill="#455a64" stroke="#78909c" stroke-width="1"/>
+      <text x="35" y="20" text-anchor="middle" fill="white" font-size="10">悬停变色</text>
+    </g>
+    
+    <!-- 显示当前值 -->
+    <text x="0" y="65" fill="#8899a6" font-size="10">测试变量值:</text>
+    <g id="val-test-var" type="svg-ext-value"><text x="75" y="65" fill="#ffeb3b" font-size="12" font-family="Roboto Mono">0</text></g>
+    
+    <!-- 开关状态显示 -->
+    <text x="130" y="65" fill="#8899a6" font-size="10">开关状态:</text>
+    <g id="indicator-switch" type="svg-ext-shapes">
+      <circle cx="215" cy="60" r="10" fill="#37474f" stroke="#546e7a" stroke-width="2"/>
+    </g>
+    <g id="val-switch-status" type="svg-ext-value"><text x="235" y="65" fill="#00d4ff" font-size="10" font-family="Roboto Mono">OFF</text></g>
+    
+    <!-- 按下/松开演示 -->
+    <g id="btn-press-demo" type="svg-ext-shapes" transform="translate(0, 75)" style="cursor:pointer">
+      <rect x="0" y="0" width="120" height="25" rx="4" fill="#c62828" stroke="#ef5350" stroke-width="1"/>
+      <text x="60" y="17" text-anchor="middle" fill="white" font-size="10">按下=1 松开=0</text>
+    </g>
+    
+    <!-- 按压状态显示 -->
+    <text x="130" y="92" fill="#8899a6" font-size="10">按压值:</text>
+    <g id="val-press-status" type="svg-ext-value"><text x="175" y="92" fill="#ff5722" font-size="12" font-family="Roboto Mono">0</text></g>
+  </g>
+</svg>
+`;
+
+    // ========================================
+    // 图元配置
+    // ========================================
+    const gaugeItems = {
+      'pump-1': { id: 'pump-1', type: 'svg-ext-shapes', property: { variableId: 'pump_1_status', actions: [{ variableId: 'pump_1_status', type: 'clockwise', range: { min: 1, max: 1 }, options: {} }], ranges: [{ min: 0, max: 0, color: '#37474f', stroke: '#546e7a' }, { min: 1, max: 1, color: '#1e88e5', stroke: '#42a5f5' }] } },
+      'pump-2': { id: 'pump-2', type: 'svg-ext-shapes', property: { variableId: 'pump_2_status', actions: [{ variableId: 'pump_2_status', type: 'clockwise', range: { min: 1, max: 1 }, options: {} }], ranges: [{ min: 0, max: 0, color: '#37474f', stroke: '#546e7a' }, { min: 1, max: 1, color: '#1e88e5', stroke: '#42a5f5' }] } },
+      'pump-3': { id: 'pump-3', type: 'svg-ext-shapes', property: { variableId: 'pump_3_status', actions: [{ variableId: 'pump_3_status', type: 'clockwise', range: { min: 1, max: 1 }, options: {} }], ranges: [{ min: 0, max: 0, color: '#37474f', stroke: '#546e7a' }, { min: 1, max: 1, color: '#1e88e5', stroke: '#42a5f5' }] } },
+      'pump-4': { id: 'pump-4', type: 'svg-ext-shapes', property: { variableId: 'pump_4_status', actions: [{ variableId: 'pump_4_status', type: 'clockwise', range: { min: 1, max: 1 }, options: {} }], ranges: [{ min: 0, max: 0, color: '#37474f', stroke: '#546e7a' }, { min: 1, max: 1, color: '#1e88e5', stroke: '#42a5f5' }] } },
       
-      // Profile settings
-      view.profile.width = config.width || 800;
-      view.profile.height = config.height || 500;
-      view.profile.bkcolor = config.backgroundColor || '#2a323d';
+      'pipe-supply-1': { id: 'pipe-supply-1', type: 'svg-ext-pipe', property: { variableId: 'pipe_flow_1', actions: [{ variableId: 'pipe_flow_1', type: 'clockwise', range: { min: 1, max: 1 }, options: { speed: 30 } }] } },
+      'pipe-return-1': { id: 'pipe-return-1', type: 'svg-ext-pipe', property: { variableId: 'pipe_flow_1', actions: [{ variableId: 'pipe_flow_1', type: 'anticlockwise', range: { min: 1, max: 1 }, options: { speed: 30 } }] } },
+      'pipe-out-1': { id: 'pipe-out-1', type: 'svg-ext-pipe', property: { variableId: 'pump_1_status', actions: [{ variableId: 'pump_1_status', type: 'clockwise', range: { min: 1, max: 1 }, options: { speed: 25 } }] } },
+      'pipe-back-1': { id: 'pipe-back-1', type: 'svg-ext-pipe', property: { variableId: 'pump_1_status', actions: [{ variableId: 'pump_1_status', type: 'anticlockwise', range: { min: 1, max: 1 }, options: { speed: 25 } }] } },
+      'pipe-out-2': { id: 'pipe-out-2', type: 'svg-ext-pipe', property: { variableId: 'pump_2_status', actions: [{ variableId: 'pump_2_status', type: 'clockwise', range: { min: 1, max: 1 }, options: { speed: 25 } }] } },
+      'pipe-back-2': { id: 'pipe-back-2', type: 'svg-ext-pipe', property: { variableId: 'pump_2_status', actions: [{ variableId: 'pump_2_status', type: 'anticlockwise', range: { min: 1, max: 1 }, options: { speed: 25 } }] } },
       
-      // Items (gauge settings)
-      if (config.items) {
-        for (const [id, item] of Object.entries(config.items)) {
-          const gs = new GaugeSettings(id, item.type || 'svg-ext-shapes');
-          gs.name = item.name || id;
-          
-          // Create property
-          const prop = new GaugeProperty();
-          if (item.property) {
-            prop.variableId = item.property.variableId || '';
-            prop.ranges = item.property.ranges || [];
-            prop.actions = item.property.actions || [];
-            prop.events = item.property.events || [];
-          }
-          gs.property = prop;
-          
-          view.items[id] = gs;
+      'valve-1': { id: 'valve-1', type: 'svg-ext-shapes', property: { variableId: 'valve_1', ranges: [{ min: 0, max: 30, color: '#f44336', stroke: '#d32f2f' }, { min: 30, max: 70, color: '#ff9800', stroke: '#f57c00' }, { min: 70, max: 100, color: '#4caf50', stroke: '#388e3c' }] } },
+      
+      'alarm-circulation': { id: 'alarm-circulation', type: 'svg-ext-shapes', property: { variableId: 'alarm_circulation', actions: [{ variableId: 'alarm_circulation', type: 'blink', range: { min: 1, max: 1 }, options: { fillA: '#f44336', fillB: '#b71c1c', interval: 500 } }] } },
+      'alarm-supply': { id: 'alarm-supply', type: 'svg-ext-shapes', property: { variableId: 'alarm_supply', actions: [{ variableId: 'alarm_supply', type: 'blink', range: { min: 1, max: 1 }, options: { fillA: '#f44336', fillB: '#b71c1c', interval: 500 } }] } },
+      
+      'val-flow-1': { id: 'val-flow-1', type: 'svg-ext-value', property: { variableId: 'flow_rate_1', ranges: [{ fractionDigits: 1 }] } },
+      'val-heat-1': { id: 'val-heat-1', type: 'svg-ext-value', property: { variableId: 'heat_flow_1', ranges: [{ fractionDigits: 1 }] } },
+      'val-pressure-supply-1': { id: 'val-pressure-supply-1', type: 'svg-ext-value', property: { variableId: 'supply_pressure_1', ranges: [{ fractionDigits: 1 }] } },
+      'val-temp-supply-1': { id: 'val-temp-supply-1', type: 'svg-ext-value', property: { variableId: 'supply_temp_1', ranges: [{ fractionDigits: 1 }] } },
+      'val-pressure-return-1': { id: 'val-pressure-return-1', type: 'svg-ext-value', property: { variableId: 'return_pressure_1', ranges: [{ fractionDigits: 1 }] } },
+      'val-temp-return-1': { id: 'val-temp-return-1', type: 'svg-ext-value', property: { variableId: 'return_temp_1', ranges: [{ fractionDigits: 1 }] } },
+      'val-valve-1': { id: 'val-valve-1', type: 'svg-ext-value', property: { variableId: 'valve_1', ranges: [{ fractionDigits: 1 }] } },
+      'val-pump1-freq': { id: 'val-pump1-freq', type: 'svg-ext-value', property: { variableId: 'pump_1_freq', ranges: [{ fractionDigits: 1 }] } },
+      'val-pump2-freq': { id: 'val-pump2-freq', type: 'svg-ext-value', property: { variableId: 'pump_2_freq', ranges: [{ fractionDigits: 1 }] } },
+      'val-pump3-freq': { id: 'val-pump3-freq', type: 'svg-ext-value', property: { variableId: 'pump_3_freq', ranges: [{ fractionDigits: 1 }] } },
+      'val-pump4-freq': { id: 'val-pump4-freq', type: 'svg-ext-value', property: { variableId: 'pump_4_freq', ranges: [{ fractionDigits: 1 }] } },
+      'val-tank-level': { id: 'val-tank-level', type: 'svg-ext-value', property: { variableId: 'tank_level', ranges: [{ fractionDigits: 0 }] } },
+      'val-pool-level': { id: 'val-pool-level', type: 'svg-ext-value', property: { variableId: 'pool_level', ranges: [{ fractionDigits: 1 }] } },
+      'val-pressure-2-1': { id: 'val-pressure-2-1', type: 'svg-ext-value', property: { variableId: 'return_pressure_2', ranges: [{ fractionDigits: 1 }] } },
+      'val-temp-2-1': { id: 'val-temp-2-1', type: 'svg-ext-value', property: { variableId: 'return_temp_1', ranges: [{ fractionDigits: 1 }] } },
+      'val-flow-out-1': { id: 'val-flow-out-1', type: 'svg-ext-value', property: { variableId: 'flow_rate_1', ranges: [{ fractionDigits: 1 }] } },
+      'val-flow-out-2': { id: 'val-flow-out-2', type: 'svg-ext-value', property: { variableId: 'flow_rate_2', ranges: [{ fractionDigits: 1 }] } },
+      'val-heat-out-2': { id: 'val-heat-out-2', type: 'svg-ext-value', property: { variableId: 'heat_flow_2', ranges: [{ fractionDigits: 1 }] } },
+      
+      // ========================================
+      // 事件演示配置
+      // ========================================
+      
+      // 点击设置值按钮 - click 事件 + onSetValue 动作
+      'btn-set-value': { 
+        id: 'btn-set-value', 
+        type: 'svg-ext-shapes', 
+        property: { 
+          variableId: 'test_var',
+          events: [{ 
+            type: 'shapes.event-click', 
+            action: 'shapes.event-onsetvalue',
+            actparam: '100',
+            actoptions: { variable: { variableId: 'test_var' } }
+          }]
+        } 
+      },
+      
+      // 切换值按钮 - click 事件 + onToggleValue 动作
+      'btn-toggle-value': { 
+        id: 'btn-toggle-value', 
+        type: 'svg-ext-shapes', 
+        property: { 
+          variableId: 'switch_status',
+          events: [{ 
+            type: 'shapes.event-click', 
+            action: 'shapes.event-ontogglevalue',
+            actoptions: { variable: { variableId: 'switch_status' } }
+          }]
+        } 
+      },
+      
+      // 悬停变色演示 - mouseover/mouseout 事件
+      'btn-hover-demo': { 
+        id: 'btn-hover-demo', 
+        type: 'svg-ext-shapes', 
+        property: { 
+          variableId: 'hover_state',
+          ranges: [
+            { min: 0, max: 0, color: '#455a64', stroke: '#78909c' },
+            { min: 1, max: 1, color: '#4caf50', stroke: '#81c784' }
+          ],
+          events: [
+            { type: 'shapes.event-mouseover', action: 'shapes.event-onsetvalue', actparam: '1', actoptions: { variable: { variableId: 'hover_state' } } },
+            { type: 'shapes.event-mouseout', action: 'shapes.event-onsetvalue', actparam: '0', actoptions: { variable: { variableId: 'hover_state' } } }
+          ]
+        } 
+      },
+      
+      // 测试变量值显示
+      'val-test-var': { id: 'val-test-var', type: 'svg-ext-value', property: { variableId: 'test_var', ranges: [{ fractionDigits: 0 }] } },
+      
+      // 开关状态指示灯 - 根据值变色
+      'indicator-switch': { 
+        id: 'indicator-switch', 
+        type: 'svg-ext-shapes', 
+        property: { 
+          variableId: 'switch_status',
+          ranges: [
+            { min: 0, max: 0, color: '#37474f', stroke: '#546e7a' },
+            { min: 1, max: 1, color: '#4caf50', stroke: '#81c784' }
+          ]
+        } 
+      },
+      
+      // 开关状态文本显示
+      'val-switch-status': { id: 'val-switch-status', type: 'svg-ext-value', property: { variableId: 'switch_status', ranges: [{ fractionDigits: 0 }] } },
+      
+      // 按下/松开演示 - mousedown/mouseup 事件
+      'btn-press-demo': { 
+        id: 'btn-press-demo', 
+        type: 'svg-ext-shapes', 
+        property: { 
+          variableId: 'press_value',
+          events: [
+            { type: 'shapes.event-mousedown', action: 'shapes.event-onsetvalue', actparam: '1', actoptions: { variable: { variableId: 'press_value' } } },
+            { type: 'shapes.event-mouseup', action: 'shapes.event-onsetvalue', actparam: '0', actoptions: { variable: { variableId: 'press_value' } } }
+          ]
+        } 
+      },
+      
+      // 按压状态显示
+      'val-press-status': { id: 'val-press-status', type: 'svg-ext-value', property: { variableId: 'press_value', ranges: [{ fractionDigits: 0 }] } }
+    };
+
+    // ========================================
+    // 创建 Widget
+    // ========================================
+    const widgetContext = {
+      $container: [document.getElementById('widgetContainer')],
+      width: document.getElementById('widgetContainer').clientWidth,
+      height: document.getElementById('widgetContainer').clientHeight,
+      settings: {
+        scadaConfig: {
+          view: { id: 'heat-station-view', svgcontent: heatStationSVG, width: 1100, height: 700, backgroundColor: '#0a1929', items: gaugeItems },
+          renderOptions: { scaleMode: 'contain', enableAnimation: true, debug: true }
+        },
+        theme: 'dark',
+        debug: true
+      },
+      defaultSubscription: { data: toTBDataFormat(telemetryData) },
+      controlApi: {
+        sendOneWayCommand: (method, params) => { console.log('[RPC]', method, params); return Promise.resolve(); },
+        sendTwoWayCommand: (method, params) => { return Promise.resolve({ success: true }); }
+      },
+      dashboard: { isDarkTheme: true }
+    };
+
+    const widget = createScadaViewerWidget(widgetContext);
+    widget.onInit();
+    widget.onDataUpdated();
+
+    // ========================================
+    // 独立的图表实现 (Canvas)
+    // ========================================
+    class SimpleChart {
+      constructor(container, options = {}) {
+        this.container = container;
+        this.options = {
+          backgroundColor: '#0d2137',
+          gridColor: 'rgba(255,255,255,0.1)',
+          textColor: '#8899a6',
+          ...options
+        };
+        this.series = new Map();
+        this.createCanvas();
+        this.startRenderLoop();
+      }
+      
+      createCanvas() {
+        this.container.innerHTML = '';
+        const rect = this.container.getBoundingClientRect();
+        this.canvas = document.createElement('canvas');
+        this.canvas.width = rect.width * window.devicePixelRatio;
+        this.canvas.height = rect.height * window.devicePixelRatio;
+        this.canvas.style.width = '100%';
+        this.canvas.style.height = '100%';
+        this.ctx = this.canvas.getContext('2d');
+        this.ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        this.container.appendChild(this.canvas);
+      }
+      
+      addSeries(id, label, color) {
+        this.series.set(id, { id, label, color, data: [] });
+      }
+      
+      addValue(id, value) {
+        const s = this.series.get(id);
+        if (s) {
+          s.data.push([Date.now(), value]);
+          if (s.data.length > 60) s.data.shift();
         }
       }
       
-      return view;
-    }
-    
-    /**
-     * Create a project service for FuxaView
-     */
-    function createProjectService(hmi, tags) {
-      return {
-        getHmi: () => hmi,
-        getDeviceFromId: (deviceId) => null,
-        getTagFromId: (tagId) => {
-          // Find tag by ID in our tags map
-          return tags[tagId] || null;
-        },
-        getScripts: () => []
-      };
-    }
-    
-    /**
-     * Convert TB data format to signal updates
-     */
-    function processDataUpdate(data) {
-      if (!hmiService) return;
+      startRenderLoop() {
+        const render = () => {
+          this.render();
+          requestAnimationFrame(render);
+        };
+        requestAnimationFrame(render);
+      }
       
-      data.forEach(item => {
-        const key = item.dataKey.name;
-        const value = item.data.length > 0 ? item.data[0][1] : null;
+      render() {
+        const ctx = this.ctx;
+        const w = this.canvas.width / window.devicePixelRatio;
+        const h = this.canvas.height / window.devicePixelRatio;
+        const pad = { top: 20, right: 10, bottom: 25, left: 35 };
         
-        if (value !== null) {
-          // Create Variable signal - Variable(id, name, device?)
-          const signal = new Variable(key, key, undefined);
-          signal.value = value;
-          signal.timestamp = Date.now();
-          
-          // This will trigger the signal chain:
-          // HmiService.setSignalValue -> onVariableChanged.emit -> 
-          // GaugesManager.onchange.emit -> FuxaView.handleSignal
-          hmiService.setSignalValue(signal);
-        }
-      });
-    }
-    
-    // Initialize the widget
-    self.onInit = function() {
-      const container = self.ctx.$container[0];
-      
-      console.log('[Widget] Initializing with FuxaView...');
-      
-      try {
-        // Create services
-        hmiService = new HmiService();
-        gaugesManager = new GaugesManager();
+        ctx.fillStyle = this.options.backgroundColor;
+        ctx.fillRect(0, 0, w, h);
         
-        // Initialize GaugesManager with HmiService - this sets up the signal chain
-        gaugesManager.init(hmiService);
-        
-        // Store for global access
-        window.hmiService = hmiService;
-        window.gaugesManager = gaugesManager;
-        
-        console.log('[Widget] HmiService created');
-        console.log('[Widget] GaugesManager created and initialized');
-        console.log('[Widget] Registered gauges:', GaugesManager.Gauges.length);
-        
-        // Get SCADA config from settings
-        const scadaConfig = self.ctx.settings.scadaConfig;
-        if (!scadaConfig || !scadaConfig.view) {
-          console.warn('[Widget] No SCADA config provided, showing placeholder');
-          container.innerHTML = `
-            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:#888;">
-              <span class="material-icons" style="font-size:48px;margin-bottom:16px;">dashboard</span>
-              <div>No SCADA Configuration</div>
-              <div style="font-size:12px;margin-top:8px;">Configure a SCADA view in Settings tab</div>
-            </div>
-          `;
-          return;
+        // Grid
+        ctx.strokeStyle = this.options.gridColor;
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= 4; i++) {
+          const y = pad.top + (h - pad.top - pad.bottom) * i / 4;
+          ctx.beginPath();
+          ctx.moveTo(pad.left, y);
+          ctx.lineTo(w - pad.right, y);
+          ctx.stroke();
         }
         
-        // Create View from config
-        const view = createViewFromConfig(scadaConfig.view);
-        console.log('[Widget] View created:', view.id, view.name);
-        console.log('[Widget] View items:', Object.keys(view.items).length);
-        
-        // Create HMI container
-        const hmi = new Hmi();
-        hmi.views = [view];
-        
-        // Create tags map from mock data
-        const tags = {};
-        Object.keys(mockData).forEach(key => {
-          tags[key] = { id: key, name: key, value: mockData[key].value };
+        // Data bounds
+        let yMin = Infinity, yMax = -Infinity;
+        this.series.forEach(s => {
+          s.data.forEach(([t, v]) => {
+            yMin = Math.min(yMin, v);
+            yMax = Math.max(yMax, v);
+          });
         });
         
-        // Create project service
-        projectService = createProjectService(hmi, tags);
+        if (yMin === Infinity) {
+          yMin = 0; yMax = 100;
+        }
+        const yPad = (yMax - yMin) * 0.1 || 5;
+        yMin -= yPad; yMax += yPad;
         
-        // Create container for FuxaView
-        const viewContainer = document.createElement('div');
-        viewContainer.id = 'fuxa-view-container';
-        viewContainer.style.cssText = 'width:100%;height:100%;position:relative;';
-        container.innerHTML = '';
-        container.appendChild(viewContainer);
+        const now = Date.now();
+        const xMin = now - 60000;
+        const xMax = now;
         
-        // Create and initialize FuxaView
-        fuxaView = new FuxaView();
-        fuxaView.init(
-          viewContainer,
-          gaugesManager,
-          hmiService,
-          projectService
-        );
+        // Y axis labels
+        ctx.fillStyle = this.options.textColor;
+        ctx.font = '9px Roboto Mono';
+        ctx.textAlign = 'right';
+        for (let i = 0; i <= 4; i++) {
+          const val = yMax - (yMax - yMin) * i / 4;
+          const y = pad.top + (h - pad.top - pad.bottom) * i / 4;
+          ctx.fillText(val.toFixed(0), pad.left - 4, y + 3);
+        }
         
-        // Load the view
-        fuxaView.loadHmi(view);
+        // X axis labels
+        ctx.textAlign = 'center';
+        for (let i = 0; i <= 3; i++) {
+          const t = xMin + (xMax - xMin) * i / 3;
+          const x = pad.left + (w - pad.left - pad.right) * i / 3;
+          const d = new Date(t);
+          ctx.fillText(d.toLocaleTimeString([], {minute:'2-digit', second:'2-digit'}), x, h - 6);
+        }
         
-        console.log('[Widget] FuxaView initialized and view loaded');
+        // Draw series
+        this.series.forEach(s => {
+          if (s.data.length < 2) return;
+          ctx.strokeStyle = s.color;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          let started = false;
+          s.data.forEach(([t, v]) => {
+            const x = pad.left + ((t - xMin) / (xMax - xMin)) * (w - pad.left - pad.right);
+            const y = pad.top + ((yMax - v) / (yMax - yMin)) * (h - pad.top - pad.bottom);
+            if (!started) { ctx.moveTo(x, y); started = true; }
+            else ctx.lineTo(x, y);
+          });
+          ctx.stroke();
+        });
         
-        // Store reference
-        window.fuxaView = fuxaView;
-        
-        // Trigger initial data update
-        setTimeout(() => {
-          if (self.ctx.defaultSubscription?.data?.length > 0) {
-            self.onDataUpdated();
-          }
-        }, 100);
-        
-      } catch (err) {
-        console.error('[Widget] Error initializing:', err);
-        container.innerHTML = `
-          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:#f44336;">
-            <span class="material-icons" style="font-size:48px;margin-bottom:16px;">error</span>
-            <div>Initialization Error</div>
-            <div style="font-size:12px;margin-top:8px;max-width:80%;text-align:center;">${err.message}</div>
-          </div>
-        `;
+        // Legend
+        let lx = pad.left + 5;
+        ctx.font = '10px Roboto';
+        this.series.forEach(s => {
+          ctx.fillStyle = s.color;
+          ctx.fillRect(lx, 5, 10, 10);
+          ctx.fillStyle = this.options.textColor;
+          ctx.textAlign = 'left';
+          ctx.fillText(s.label, lx + 14, 13);
+          lx += ctx.measureText(s.label).width + 30;
+        });
       }
-    };
-    
-    self.onDataUpdated = function() {
-      const data = self.ctx.defaultSubscription.data;
-      console.log('[Widget] Data updated:', data?.length, 'keys');
+    }
+
+    // ========================================
+    // 独立的表格实现
+    // ========================================
+    class SimpleTable {
+      constructor(container, options = {}) {
+        this.container = container;
+        this.options = {
+          headerBg: '#1e3a5f',
+          headerColor: '#00d4ff',
+          rowBg: '#0d2137',
+          rowColor: '#ffffff',
+          altRowBg: '#132f4c',
+          ...options
+        };
+        this.data = [];
+        this.columns = options.columns || [
+          { id: 'time', label: '时间', width: '80px' },
+          { id: 'name', label: '参数', width: '70px' },
+          { id: 'value', label: '值' }
+        ];
+        this.createTable();
+      }
       
-      if (!gaugesManager) {
-        console.warn('[Widget] GaugesManager not initialized');
-        return;
+      createTable() {
+        this.container.innerHTML = '';
+        const wrapper = document.createElement('div');
+        wrapper.style.cssText = 'width:100%;height:100%;overflow:auto;font-size:10px;';
+        
+        this.table = document.createElement('table');
+        this.table.style.cssText = 'width:100%;border-collapse:collapse;';
+        
+        // Header
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+        headerRow.style.cssText = `background:${this.options.headerBg};color:${this.options.headerColor};position:sticky;top:0;`;
+        this.columns.forEach(col => {
+          const th = document.createElement('th');
+          th.textContent = col.label;
+          th.style.cssText = `padding:6px 4px;text-align:left;font-weight:500;${col.width ? 'width:'+col.width : ''}`;
+          headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+        this.table.appendChild(thead);
+        
+        this.tbody = document.createElement('tbody');
+        this.table.appendChild(this.tbody);
+        
+        wrapper.appendChild(this.table);
+        this.container.appendChild(wrapper);
       }
       
-      // Process data through GaugesManager signal system
-      processDataUpdate(data);
+      addRow(rowData) {
+        this.data.unshift(rowData);
+        if (this.data.length > 50) this.data.pop();
+        this.render();
+      }
+      
+      render() {
+        this.tbody.innerHTML = '';
+        this.data.forEach((row, i) => {
+          const tr = document.createElement('tr');
+          tr.style.cssText = `background:${i % 2 === 0 ? this.options.rowBg : this.options.altRowBg};color:${this.options.rowColor};`;
+          this.columns.forEach(col => {
+            const td = document.createElement('td');
+            td.textContent = row[col.id] || '';
+            td.style.cssText = 'padding:4px;border-bottom:1px solid #1e4976;';
+            tr.appendChild(td);
+          });
+          this.tbody.appendChild(tr);
+        });
+      }
+    }
+
+    // ========================================
+    // 初始化图表和表格
+    // ========================================
+    const chart = new SimpleChart(document.getElementById('chartContainer'));
+    chart.addSeries('supply_temp_1', '供水温度', '#ff4081');
+    chart.addSeries('return_temp_1', '回水温度', '#00d4ff');
+
+    const dataTable = new SimpleTable(document.getElementById('tableContainer'));
+
+    // 故障条形图
+    const faultBars = document.getElementById('faultBars');
+    for (let i = 0; i < 20; i++) {
+      const bar = document.createElement('div');
+      const h = Math.random() * 100;
+      bar.style.cssText = `width:8px;height:${h}%;background:${h > 50 ? '#f44336' : '#00d4ff'};border-radius:1px;`;
+      faultBars.appendChild(bar);
+    }
+
+    // ========================================
+    // 数据模拟
+    // ========================================
+    function updateSidePanelDisplay() {
+      document.getElementById('displaySupplyTemp1').textContent = telemetryData.supply_temp_1.toFixed(1);
+      document.getElementById('displayReturnTemp1').textContent = telemetryData.return_temp_1.toFixed(1);
+      document.getElementById('displayHeatFlow').textContent = telemetryData.heat_flow_1.toFixed(1);
+      
+      document.getElementById('btnPump1').classList.toggle('active', telemetryData.pump_1_status === 1);
+      document.getElementById('btnPump2').classList.toggle('active', telemetryData.pump_2_status === 1);
+      document.getElementById('btnPump3').classList.toggle('active', telemetryData.pump_3_status === 1);
+      document.getElementById('btnPump4').classList.toggle('active', telemetryData.pump_4_status === 1);
+      
+      // 能耗条形图
+      const water = 50 + Math.random() * 30;
+      const power = 60 + Math.random() * 30;
+      const heat = 55 + Math.random() * 30;
+      document.getElementById('barWater').style.width = water + '%';
+      document.getElementById('barWaterVal').textContent = water.toFixed(1) + ' m³';
+      document.getElementById('barPower').style.width = power + '%';
+      document.getElementById('barPowerVal').textContent = power.toFixed(1) + ' KW/h';
+      document.getElementById('barHeat').style.width = heat + '%';
+      document.getElementById('barHeatVal').textContent = heat.toFixed(1) + ' m³';
+    }
+    
+    function simulateDataFluctuation() {
+      telemetryData.supply_temp_1 = 90 + (Math.random() - 0.5) * 6;
+      telemetryData.return_temp_1 = 68 + (Math.random() - 0.5) * 6;
+      telemetryData.flow_rate_1 = 54.8 + (Math.random() - 0.5) * 3;
+      telemetryData.heat_flow_1 = 68.0 + (Math.random() - 0.5) * 3;
+      telemetryData.flow_rate_2 = 50.3 + (Math.random() - 0.5) * 3;
+      telemetryData.heat_flow_2 = 51.9 + (Math.random() - 0.5) * 3;
+      telemetryData.supply_pressure_1 = 62.1 + (Math.random() - 0.5) * 1;
+      telemetryData.return_pressure_1 = 63.0 + (Math.random() - 0.5) * 1;
+      if (telemetryData.pump_1_status) telemetryData.pump_1_freq = 33.2 + (Math.random() - 0.5) * 3;
+      if (telemetryData.pump_2_status) telemetryData.pump_2_freq = 30.5 + (Math.random() - 0.5) * 3;
+      telemetryData.tank_level = Math.max(0, Math.min(100, telemetryData.tank_level + (Math.random() - 0.5) * 3));
+      telemetryData.pool_level = Math.max(0, Math.min(100, telemetryData.pool_level + (Math.random() - 0.5) * 3));
+      
+      // 更新图表
+      chart.addValue('supply_temp_1', telemetryData.supply_temp_1);
+      chart.addValue('return_temp_1', telemetryData.return_temp_1);
+      
+      // 更新表格
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+      const params = ['供水温度', '回水温度', '瞬时流量', '水箱液位'];
+      const values = [telemetryData.supply_temp_1, telemetryData.return_temp_1, telemetryData.flow_rate_1, telemetryData.tank_level];
+      const idx = Math.floor(Math.random() * params.length);
+      dataTable.addRow({
+        time: timeStr,
+        name: params[idx],
+        value: values[idx].toFixed(1)
+      });
+      
+      widgetContext.defaultSubscription.data = toTBDataFormat(telemetryData);
+      widget.onDataUpdated();
+      updateSidePanelDisplay();
+    }
+    
+    setInterval(simulateDataFluctuation, 2000);
+    updateSidePanelDisplay();
+
+    // ========================================
+    // 控制函数
+    // ========================================
+    window.togglePump = function(pumpNum) {
+      telemetryData[`pump_${pumpNum}_status`] = telemetryData[`pump_${pumpNum}_status`] === 1 ? 0 : 1;
+      widgetContext.defaultSubscription.data = toTBDataFormat(telemetryData);
+      widget.onDataUpdated();
+      updateSidePanelDisplay();
     };
     
-    self.onResize = function() {
-      console.log('[Widget] Resize event');
-      if (fuxaView) {
-        fuxaView.onResize();
-      }
+    window.updateValve = function(value) {
+      telemetryData.valve_1 = parseFloat(value);
+      document.getElementById('valveValue').textContent = value + '%';
+      widgetContext.defaultSubscription.data = toTBDataFormat(telemetryData);
+      widget.onDataUpdated();
     };
     
-    self.onDestroy = function() {
-      console.log('[Widget] Destroy event');
-      if (fuxaView) {
-        fuxaView.destroy();
-        fuxaView = null;
-      }
-      hmiService = null;
-      gaugesManager = null;
-      projectService = null;
+    window.updateAlarm = function(value) {
+      telemetryData.alarm_circulation = parseInt(value);
+      telemetryData.alarm_supply = parseInt(value);
+      document.getElementById('alarmValue').textContent = value === '1' ? '开' : '关';
+      widgetContext.defaultSubscription.data = toTBDataFormat(telemetryData);
+      widget.onDataUpdated();
     };
-    
-    // Auto-init after load
-    setTimeout(() => {
-      if (typeof self.onInit === 'function') {
-        document.getElementById('lc-init').classList.add('active');
-        self.onInit();
-      }
-    }, 500);
+
+    // 时间
+    function updateTime() {
+      const now = new Date();
+      document.getElementById('currentTime').textContent = now.toLocaleTimeString('zh-CN', { hour12: false });
+      document.getElementById('currentDate').textContent = now.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
+    }
+    updateTime();
+    setInterval(updateTime, 1000);
+
+    window.addEventListener('resize', () => {
+      widgetContext.width = document.getElementById('widgetContainer').clientWidth;
+      widgetContext.height = document.getElementById('widgetContainer').clientHeight;
+      widget.onResize();
+    });
+
+    console.log('[Demo] Heat Station SCADA Demo ready!');
   </script>
 </body>
 </html>
